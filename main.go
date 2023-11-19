@@ -1,16 +1,21 @@
 package main
 
 import (
+	"context"
 	"grpc_identity/config"
-	"grpc_identity/pkg/database"
+	"grpc_identity/database"
 	"log"
 )
 
 func main() {
-	config, err := config.LoadConfigFile()
+	loadConfig, err := config.LoadConfigFile()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	database.ConnectDB(config)
+	dbClient := database.ConnectDB(loadConfig)
+	ctx := context.Background()
+	if err := dbClient.Schema.Create(ctx); err != nil {
+		log.Fatal(err)
+	}
 }
