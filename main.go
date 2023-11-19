@@ -4,7 +4,12 @@ import (
 	"context"
 	"grpc_identity/config"
 	"grpc_identity/database"
+	"grpc_identity/handler"
+	"grpc_identity/repository"
+	"grpc_identity/service"
 	"log"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
@@ -18,4 +23,11 @@ func main() {
 	if err := dbClient.Schema.Create(ctx); err != nil {
 		log.Fatal(err)
 	}
+
+	app := fiber.New()
+	userRepository := repository.NewUserRepository(dbClient.User)
+	userService := service.NewUserService(userRepository)
+	handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService)
+
+	log.Fatal(app.Listen(":3000"))
 }
