@@ -1,2 +1,18 @@
 # env file
 .env
+
+## IDE
+/.idea
+*.iml
+
+# macOS
+*.DS_Store
+
+# build
+build
+
+# artifacts
+artifacts
+
+# binary
+customerd
