@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	"golang.org/x/crypto/bcrypt"
 	"grpc_identity/dto"
 	"grpc_identity/repository"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type IUserService interface {
@@ -12,6 +13,7 @@ type IUserService interface {
 	GetUserByID(ctx context.Context, id int) (dto.UserResponse, error)
 	GetUserByName(ctx context.Context, name string) (dto.UserResponse, error)
 	DeleteByID(ctx context.Context, id int) error
+	UpdateByName(ctx context.Context, name string, id int) (dto.UserResponse, error)
 }
 
 type UserService struct {
@@ -57,4 +59,14 @@ func (u *UserService) GetUserByName(ctx context.Context, name string) (dto.UserR
 
 func (u *UserService) DeleteByID(ctx context.Context, id int) error {
 	return u.repo.DeleteByID(ctx, id)
+}
+
+func (u *UserService) UpdateByName(ctx context.Context, name string, id int) (dto.UserResponse, error) {
+	updateUserByName, err := u.repo.UpdateUserByName(ctx, name, id)
+	if err != nil {
+		return dto.UserResponse{}, nil
+	}
+
+	userResponse := dto.NewUserResponse(updateUserByName)
+	return userResponse, nil
 }

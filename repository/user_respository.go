@@ -11,6 +11,7 @@ type IUserRepository interface {
 	GetUserByID(ctx context.Context, id int) (*ent.User, error)
 	GetUserByName(ctx context.Context, name string) (*ent.User, error)
 	DeleteByID(ctx context.Context, id int) error
+	UpdateUserByName(ctx context.Context, name string, id int) (*ent.User, error)
 }
 
 type UserRepository struct {
@@ -40,4 +41,8 @@ func (u *UserRepository) GetUserByName(ctx context.Context, name string) (*ent.U
 
 func (u *UserRepository) DeleteByID(ctx context.Context, id int) error {
 	return u.db.DeleteOneID(id).Exec(ctx)
+}
+
+func (u *UserRepository) UpdateUserByName(ctx context.Context, name string, id int) (*ent.User, error) {
+	return u.db.UpdateOneID(id).SetName(name).Save(ctx)
 }
