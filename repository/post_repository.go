@@ -16,6 +16,10 @@ type PostRepository struct {
 	db *ent.PostClient
 }
 
+func NewPostRepository(db *ent.PostClient) IPostRepository {
+	return &PostRepository{db: db}
+}
+
 func (p *PostRepository) CreatePost(ctx context.Context, title, content string) (*ent.Post, error) {
 	return p.db.
 		Create().

@@ -1,12 +1,11 @@
 package dto
 
 type PostCreateRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }
 
 type PostUpdateRequest struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
 }

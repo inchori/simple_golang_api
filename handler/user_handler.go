@@ -14,7 +14,7 @@ func NewUserHandler(app fiber.Router, ctx context.Context, userService service.I
 	app.Get("/:id", GetUserByID(ctx, userService))
 	app.Get("/:name", GetUserByName(ctx, userService))
 	app.Delete("/:id", DeleteUserByID(ctx, userService))
-	app.Put("/:id", UpdateUserName(ctx, userService))
+	app.Put("/:id", UpdateUser(ctx, userService))
 }
 
 func CreateUser(ctx context.Context, userService service.IUserService) fiber.Handler {
@@ -100,7 +100,7 @@ func DeleteUserByID(ctx context.Context, userService service.IUserService) fiber
 	}
 }
 
-func UpdateUserName(ctx context.Context, userService service.IUserService) fiber.Handler {
+func UpdateUser(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
