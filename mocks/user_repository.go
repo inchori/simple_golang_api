@@ -106,25 +106,25 @@ func (_m *IUserRepository) GetUserByName(ctx context.Context, name string) (*ent
 	return r0, r1
 }
 
-// UpdateUserByName provides a mock function with given fields: ctx, name, id
-func (_m *IUserRepository) UpdateUserByName(ctx context.Context, name string, id int) (*ent.User, error) {
-	ret := _m.Called(ctx, name, id)
+// UpdateUser provides a mock function with given fields: ctx, name, password, id
+func (_m *IUserRepository) UpdateUser(ctx context.Context, name string, password string, id int) (*ent.User, error) {
+	ret := _m.Called(ctx, name, password, id)
 
 	var r0 *ent.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, int) (*ent.User, error)); ok {
-		return rf(ctx, name, id)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, int) (*ent.User, error)); ok {
+		return rf(ctx, name, password, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, int) *ent.User); ok {
-		r0 = rf(ctx, name, id)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, int) *ent.User); ok {
+		r0 = rf(ctx, name, password, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ent.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, int) error); ok {
-		r1 = rf(ctx, name, id)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, int) error); ok {
+		r1 = rf(ctx, name, password, id)
 	} else {
 		r1 = ret.Error(1)
 	}

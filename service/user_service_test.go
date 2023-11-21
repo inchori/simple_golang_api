@@ -100,7 +100,7 @@ func TestUserService_DeleteByID(t *testing.T) {
 	})
 }
 
-func TestUserService_UpdateByName(t *testing.T) {
+func TestUserService_UpdateUser(t *testing.T) {
 	t.Run("update user name", func(t *testing.T) {
 		mockUser := &ent.User{
 			ID:       1,
@@ -112,8 +112,8 @@ func TestUserService_UpdateByName(t *testing.T) {
 		mockUserResp := dto.NewUserResponse(mockUser)
 
 		mockUserService, deps := createMockUserService()
-		deps.mockUserRepo.On("UpdateUserByName", mock.Anything, mock.Anything, mock.Anything).Return(mockUser, nil).Once()
-		res, err := mockUserService.UpdateByName(context.TODO(), mock.Anything, 1)
+		deps.mockUserRepo.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockUser, nil).Once()
+		res, err := mockUserService.UpdateUser(context.TODO(), mock.Anything, mock.Anything, 1)
 
 		require.NoError(t, err)
 		require.Equal(t, res, mockUserResp)

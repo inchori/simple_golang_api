@@ -4,6 +4,7 @@ import (
 	"context"
 	"grpc_identity/dto"
 	"grpc_identity/service"
+	"grpc_identity/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,7 +25,14 @@ func CreateUser(ctx context.Context, userService service.IUserService) fiber.Han
 				"error": err.Error(),
 			})
 		} else {
-			user, err := userService.CreateUser(ctx, userRequest.Name, userRequest.Email, userRequest.Password)
+			password, err := utils.HashPassword(userRequest.Password)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			user, err := userService.CreateUser(ctx, userRequest.Name, userRequest.Email, password)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": err.Error(),
@@ -106,7 +114,8 @@ func UpdateUserName(ctx context.Context, userService service.IUserService) fiber
 					"error": err.Error(),
 				})
 			}
-			userResponse, err := userService.UpdateByName(ctx, userUpdateRequest.Name, id)
+			password, err := utils.HashPassword(userUpdateRequest.Password)
+			userResponse, err := userService.UpdateUser(ctx, userUpdateRequest.Name, password, id)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": err.Error(),

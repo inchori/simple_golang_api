@@ -13,6 +13,8 @@ import (
 )
 
 func main() {
+	app := fiber.New()
+
 	loadConfig, err := config.LoadConfigFile()
 	if err != nil {
 		log.Fatal(err)
@@ -24,10 +26,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := fiber.New()
 	userRepository := repository.NewUserRepository(dbClient.User)
 	userService := service.NewUserService(userRepository)
+
+	postRepository := repository.NewPostRepository(dbClient.Post)
+	postService := service.NewPostService(postRepository)
+
 	handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService)
+	handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService)
 
 	log.Fatal(app.Listen(":3000"))
 }

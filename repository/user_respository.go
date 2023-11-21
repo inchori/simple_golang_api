@@ -11,7 +11,7 @@ type IUserRepository interface {
 	GetUserByID(ctx context.Context, id int) (*ent.User, error)
 	GetUserByName(ctx context.Context, name string) (*ent.User, error)
 	DeleteByID(ctx context.Context, id int) error
-	UpdateUserByName(ctx context.Context, name string, id int) (*ent.User, error)
+	UpdateUser(ctx context.Context, name, password string, id int) (*ent.User, error)
 }
 
 type UserRepository struct {
@@ -32,7 +32,7 @@ func (u *UserRepository) CreateUser(ctx context.Context, name, email, password s
 }
 
 func (u *UserRepository) GetUserByID(ctx context.Context, id int) (*ent.User, error) {
-	return u.db.Get(ctx, id)
+	return u.db.Query().Where(user.IDEQ(id)).WithPosts().Only(ctx)
 }
 
 func (u *UserRepository) GetUserByName(ctx context.Context, name string) (*ent.User, error) {
@@ -43,6 +43,6 @@ func (u *UserRepository) DeleteByID(ctx context.Context, id int) error {
 	return u.db.DeleteOneID(id).Exec(ctx)
 }
 
-func (u *UserRepository) UpdateUserByName(ctx context.Context, name string, id int) (*ent.User, error) {
-	return u.db.UpdateOneID(id).SetName(name).Save(ctx)
+func (u *UserRepository) UpdateUser(ctx context.Context, name, password string, id int) (*ent.User, error) {
+	return u.db.UpdateOneID(id).SetName(name).SetPassword(password).Save(ctx)
 }

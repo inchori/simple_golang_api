@@ -4,8 +4,6 @@ import (
 	"context"
 	"grpc_identity/dto"
 	"grpc_identity/repository"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type IUserService interface {
@@ -13,7 +11,7 @@ type IUserService interface {
 	GetUserByID(ctx context.Context, id int) (dto.UserResponse, error)
 	GetUserByName(ctx context.Context, name string) (dto.UserResponse, error)
 	DeleteByID(ctx context.Context, id int) error
-	UpdateByName(ctx context.Context, name string, id int) (dto.UserResponse, error)
+	UpdateUser(ctx context.Context, name, password string, id int) (dto.UserResponse, error)
 }
 
 type UserService struct {
@@ -25,11 +23,7 @@ func NewUserService(userRepository repository.IUserRepository) IUserService {
 }
 
 func (u *UserService) CreateUser(ctx context.Context, name, email, password string) (dto.UserResponse, error) {
-	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		return dto.UserResponse{}, err
-	}
-	user, err := u.repo.CreateUser(ctx, name, email, string(encryptedPassword))
+	user, err := u.repo.CreateUser(ctx, name, email, password)
 	if err != nil {
 		return dto.UserResponse{}, err
 	}
@@ -61,8 +55,8 @@ func (u *UserService) DeleteByID(ctx context.Context, id int) error {
 	return u.repo.DeleteByID(ctx, id)
 }
 
-func (u *UserService) UpdateByName(ctx context.Context, name string, id int) (dto.UserResponse, error) {
-	updateUserByName, err := u.repo.UpdateUserByName(ctx, name, id)
+func (u *UserService) UpdateUser(ctx context.Context, name, password string, id int) (dto.UserResponse, error) {
+	updateUserByName, err := u.repo.UpdateUser(ctx, name, password, id)
 	if err != nil {
 		return dto.UserResponse{}, nil
 	}
