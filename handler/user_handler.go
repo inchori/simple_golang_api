@@ -9,12 +9,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewUserHandler(app fiber.Router, ctx context.Context, userService service.IUserService) {
+func NewUserHandler(app fiber.Router, ctx context.Context, userService service.IUserService, authentication fiber.Handler) {
 	app.Post("/signUp", CreateUser(ctx, userService))
 	app.Get("/:id", GetUserByID(ctx, userService))
 	app.Get("/:name", GetUserByName(ctx, userService))
-	app.Delete("/:id", DeleteUserByID(ctx, userService))
-	app.Put("/:id", UpdateUser(ctx, userService))
+	app.Delete("/:id", authentication, DeleteUserByID(ctx, userService))
+	app.Put("/:id", authentication, UpdateUser(ctx, userService), authentication)
 }
 
 func CreateUser(ctx context.Context, userService service.IUserService) fiber.Handler {

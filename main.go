@@ -5,6 +5,7 @@ import (
 	"grpc_identity/config"
 	"grpc_identity/database"
 	"grpc_identity/handler"
+	"grpc_identity/middleware"
 	"grpc_identity/repository"
 	"grpc_identity/service"
 	"log"
@@ -32,8 +33,12 @@ func main() {
 	postRepository := repository.NewPostRepository(dbClient.Post)
 	postService := service.NewPostService(postRepository)
 
-	handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService)
-	handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService)
+	middleware.NewLoginHandler(app.Group("/v1/auth"))
+
+	authentication := middleware.NewAuthentication()
+
+	handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService, authentication.Authentication())
+	handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, authentication.Authentication())
 
 	log.Fatal(app.Listen(":3000"))
 }

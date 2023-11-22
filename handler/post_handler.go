@@ -7,11 +7,11 @@ import (
 	"grpc_identity/service"
 )
 
-func NewPostHandler(app fiber.Router, ctx context.Context, postService service.IPostService) {
-	app.Post("", CreatePost(ctx, postService))
+func NewPostHandler(app fiber.Router, ctx context.Context, postService service.IPostService, authentication fiber.Handler) {
+	app.Post("", authentication, CreatePost(ctx, postService))
 	app.Get("/:id", GetPostByID(ctx, postService))
-	app.Delete("/:id", DeleteByID(ctx, postService))
-	app.Put("/:id", UpdatePost(ctx, postService))
+	app.Delete("/:id", authentication, DeleteByID(ctx, postService))
+	app.Put("/:id", authentication, UpdatePost(ctx, postService))
 }
 
 func CreatePost(ctx context.Context, postService service.IPostService) fiber.Handler {
