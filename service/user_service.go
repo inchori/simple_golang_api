@@ -10,6 +10,7 @@ type IUserService interface {
 	CreateUser(ctx context.Context, name, email, password string) (dto.UserResponse, error)
 	GetUserByID(ctx context.Context, id int) (dto.UserResponse, error)
 	GetUserByName(ctx context.Context, name string) (dto.UserResponse, error)
+	GetUserByEmail(ctx context.Context, email string) (dto.UserResponse, string, error)
 	DeleteByID(ctx context.Context, id int) error
 	UpdateUser(ctx context.Context, name, password string, id int) (dto.UserResponse, error)
 }
@@ -49,6 +50,16 @@ func (u *UserService) GetUserByName(ctx context.Context, name string) (dto.UserR
 
 	userResponse := dto.NewUserResponse(userByName)
 	return userResponse, nil
+}
+
+func (u *UserService) GetUserByEmail(ctx context.Context, email string) (dto.UserResponse, string, error) {
+	userByEmail, err := u.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return dto.UserResponse{}, "", err
+	}
+
+	userResponse := dto.NewUserResponse(userByEmail)
+	return userResponse, userByEmail.Password, nil
 }
 
 func (u *UserService) DeleteByID(ctx context.Context, id int) error {

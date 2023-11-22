@@ -2,16 +2,18 @@ package handler
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
 	"grpc_identity/dto"
+	"grpc_identity/middleware"
 	"grpc_identity/service"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func NewPostHandler(app fiber.Router, ctx context.Context, postService service.IPostService, authentication fiber.Handler) {
-	app.Post("", authentication, CreatePost(ctx, postService))
+func NewPostHandler(app fiber.Router, ctx context.Context, postService service.IPostService, protected fiber.Handler) {
+	app.Post("", middleware.Protected(), CreatePost(ctx, postService))
 	app.Get("/:id", GetPostByID(ctx, postService))
-	app.Delete("/:id", authentication, DeleteByID(ctx, postService))
-	app.Put("/:id", authentication, UpdatePost(ctx, postService))
+	app.Delete("/:id", protected, DeleteByID(ctx, postService))
+	app.Put("/:id", protected, UpdatePost(ctx, postService))
 }
 
 func CreatePost(ctx context.Context, postService service.IPostService) fiber.Handler {

@@ -9,12 +9,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewUserHandler(app fiber.Router, ctx context.Context, userService service.IUserService, authentication fiber.Handler) {
-	app.Post("/signUp", CreateUser(ctx, userService))
+func NewUserHandler(app fiber.Router, ctx context.Context, userService service.IUserService, protected fiber.Handler) {
+	app.Post("/signIn", CreateUser(ctx, userService))
 	app.Get("/:id", GetUserByID(ctx, userService))
 	app.Get("/:name", GetUserByName(ctx, userService))
-	app.Delete("/:id", authentication, DeleteUserByID(ctx, userService))
-	app.Put("/:id", authentication, UpdateUser(ctx, userService), authentication)
+	app.Delete("/:id", protected, DeleteUserByID(ctx, userService))
+	app.Put("/:id", protected, UpdateUser(ctx, userService))
 }
 
 func CreateUser(ctx context.Context, userService service.IUserService) fiber.Handler {
@@ -86,6 +86,15 @@ func DeleteUserByID(ctx context.Context, userService service.IUserService) fiber
 				"error": err.Error(),
 			})
 		} else {
+			//userByID, err := userService.GetUserByID(ctx, id)
+			//if err != nil {
+			//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			//		"error": err.Error(),
+			//	})
+			//}
+			//
+			//middleware.Authentication()
+
 			err := userService.DeleteByID(ctx, id)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

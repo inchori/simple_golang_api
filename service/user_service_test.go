@@ -2,16 +2,18 @@ package service_test
 
 import (
 	"context"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"grpc_identity/dto"
 	"grpc_identity/ent"
 	"grpc_identity/mocks"
 	"grpc_identity/service"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
+// TODO: GetUserByEmail
 type mockUserDeps struct {
 	mockUserRepo *mocks.IUserRepository
 }

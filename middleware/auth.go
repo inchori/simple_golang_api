@@ -3,21 +3,19 @@ package middleware
 import (
 	"errors"
 	"fmt"
+	"strings"
+
+	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"grpc_identity/dto"
-	"strings"
-	"time"
 )
 
-func NewLoginHandler(app fiber.Router) {
-	app.Post("/login", Login())
-}
-
-type Authentication struct{}
-
-func NewAuthentication() *Authentication {
-	return &Authentication{}
+func Protected() fiber.Handler {
+	return jwtware.New(jwtware.Config{
+		SigningKey:     jwtware.SigningKey{Key: []byte("secret")},
+		SuccessHandler: authentication,
+		ErrorHandler:   jwtError,
+	})
 }
 
 func validateToken(tokenString string) error {
@@ -26,10 +24,9 @@ func validateToken(tokenString string) error {
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		if _, ok := token.Claims.(jwt.MapClaims); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["sub"])
 		}
-
 		return []byte("secret"), nil
 	})
 	if err != nil {
@@ -43,42 +40,23 @@ func validateToken(tokenString string) error {
 	}
 }
 
-func (a *Authentication) Authentication() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		bearerToken := c.Get("Authorization")
-		token := strings.TrimPrefix(bearerToken, "Bearer ")
+func authentication(c *fiber.Ctx) error {
+	bearerToken := c.Get("Authorization")
+	token := strings.TrimPrefix(bearerToken, "Bearer ")
 
-		if err := validateToken(token); err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": err.Error(),
-			})
-		}
-		return c.Next()
+	if err := validateToken(token); err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": err.Error(),
+		})
 	}
+	return c.Next()
 }
 
-func Login() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		loginRequest := new(dto.LoginRequest)
-		if err := c.BodyParser(&loginRequest); err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": err.Error(),
-			})
-		} else {
-			token := jwt.NewWithClaims(jwt.SigningMethod(jwt.SigningMethodHS256), &jwt.RegisteredClaims{
-				Subject:   loginRequest.Email,
-				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
-			})
-
-			t, err := token.SignedString([]byte("secret"))
-			if err != nil {
-				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-					"error": err.Error(),
-				})
-			}
-			return c.JSON(fiber.Map{
-				"jwt": t,
-			})
-		}
+func jwtError(c *fiber.Ctx, err error) error {
+	if err.Error() == "Missing or malformed JWT" {
+		return c.Status(fiber.StatusBadRequest).
+			JSON(fiber.Map{"message": "Missing or malformed JWT"})
 	}
+	return c.Status(fiber.StatusUnauthorized).
+		JSON(fiber.Map{"message": "Invalid or expired JWT"})
 }

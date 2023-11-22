@@ -10,6 +10,7 @@ type IUserRepository interface {
 	CreateUser(ctx context.Context, name, email, password string) (*ent.User, error)
 	GetUserByID(ctx context.Context, id int) (*ent.User, error)
 	GetUserByName(ctx context.Context, name string) (*ent.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*ent.User, error)
 	DeleteByID(ctx context.Context, id int) error
 	UpdateUser(ctx context.Context, name, password string, id int) (*ent.User, error)
 }
@@ -37,6 +38,10 @@ func (u *UserRepository) GetUserByID(ctx context.Context, id int) (*ent.User, er
 
 func (u *UserRepository) GetUserByName(ctx context.Context, name string) (*ent.User, error) {
 	return u.db.Query().Where(user.Name(name)).Only(ctx)
+}
+
+func (u *UserRepository) GetUserByEmail(ctx context.Context, email string) (*ent.User, error) {
+	return u.db.Query().Where(user.Email(email)).Only(ctx)
 }
 
 func (u *UserRepository) DeleteByID(ctx context.Context, id int) error {

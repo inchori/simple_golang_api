@@ -33,12 +33,11 @@ func main() {
 	postRepository := repository.NewPostRepository(dbClient.Post)
 	postService := service.NewPostService(postRepository)
 
-	middleware.NewLoginHandler(app.Group("/v1/auth"))
+	protected := middleware.Protected()
 
-	authentication := middleware.NewAuthentication()
-
-	handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService, authentication.Authentication())
-	handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, authentication.Authentication())
+	handler.NewLoginHandler(app.Group("/v1/auth"), context.Background(), userService)
+	handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService, protected)
+	handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, protected)
 
 	log.Fatal(app.Listen(":3000"))
 }
