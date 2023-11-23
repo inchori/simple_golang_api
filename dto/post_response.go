@@ -15,3 +15,15 @@ func NewPostResponse(post *ent.Post) PostResponse {
 		Content: post.Content,
 	}
 }
+
+type PostsResponse struct {
+	Count int            `json:"count"`
+	Posts []PostResponse `json:"posts"`
+}
+
+func NewPostsResponse(postsResponse []PostResponse) PostsResponse {
+	return PostsResponse{
+		Count: len(postsResponse),
+		Posts: postsResponse,
+	}
+}

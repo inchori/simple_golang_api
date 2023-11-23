@@ -9,6 +9,7 @@ import (
 type IPostService interface {
 	CreatePost(ctx context.Context, title, content string, user *ent.User) (*ent.Post, error)
 	GetPostByID(ctx context.Context, id int) (*ent.Post, error)
+	GetPostByUserID(ctx context.Context, userID int) ([]*ent.Post, error)
 	DeleteByID(ctx context.Context, id int) error
 	UpdatePost(ctx context.Context, content, title string, userID int) (*ent.Post, error)
 }
@@ -27,6 +28,10 @@ func (p *PostService) CreatePost(ctx context.Context, title, content string, use
 
 func (p *PostService) GetPostByID(ctx context.Context, id int) (*ent.Post, error) {
 	return p.repo.GetPostByID(ctx, id)
+}
+
+func (p *PostService) GetPostByUserID(ctx context.Context, userID int) ([]*ent.Post, error) {
+	return p.repo.GetPostByUserID(ctx, userID)
 }
 
 func (p *PostService) DeleteByID(ctx context.Context, id int) error {

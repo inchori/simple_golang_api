@@ -14,8 +14,9 @@ func NewPostHandler(app fiber.Router, ctx context.Context, postService service.I
 	userService service.IUserService, protected fiber.Handler) {
 	app.Post("", middleware.Protected(), CreatePost(ctx, postService, userService))
 	app.Get("/:id", GetPostByID(ctx, postService))
-	app.Delete("/:id", protected, DeleteByID(ctx, postService))
-	app.Put("/:id", protected, UpdatePost(ctx, postService))
+	app.Get("/user/:userId", protected, GetPostByUserID(ctx, postService, userService))
+	app.Delete("/:id", protected, DeleteByID(ctx, postService, userService))
+	app.Put("/:id", protected, UpdatePost(ctx, postService, userService))
 }
 
 func CreatePost(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
@@ -33,7 +34,8 @@ func CreatePost(ctx context.Context, postService service.IPostService, userServi
 				})
 			}
 
-			userByID, err := userService.GetUserByID(ctx, 1)
+			tokenID, _ := strconv.Atoi(tokenClaimsID)
+			userByID, err := userService.GetUserByID(ctx, tokenID)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": err.Error(),
@@ -78,7 +80,51 @@ func GetPostByID(ctx context.Context, postService service.IPostService) fiber.Ha
 	}
 }
 
-func DeleteByID(ctx context.Context, postService service.IPostService) fiber.Handler {
+func GetPostByUserID(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userId, err := c.ParamsInt("userId")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		} else {
+			userByID, err := userService.GetUserByID(ctx, userId)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			tokenClaimsID, err := middleware.ExtractTokenMetadata(c)
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			if strconv.Itoa(userByID.ID) != tokenClaimsID {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": "unauthorized",
+				})
+			}
+
+			postsByUserID, err := postService.GetPostByUserID(ctx, userId)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			} else {
+				var postsResponse []dto.PostResponse
+				for _, p := range postsByUserID {
+					postsResponse = append(postsResponse, dto.NewPostResponse(p))
+				}
+				return c.JSON(dto.NewPostsResponse(postsResponse))
+			}
+		}
+	}
+}
+
+func DeleteByID(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
@@ -86,7 +132,28 @@ func DeleteByID(ctx context.Context, postService service.IPostService) fiber.Han
 				"error": err.Error(),
 			})
 		} else {
-			err := postService.DeleteByID(ctx, id)
+			tokenClaimsID, err := middleware.ExtractTokenMetadata(c)
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			userID, _ := strconv.Atoi(tokenClaimsID)
+			userByID, err := userService.GetUserByID(ctx, userID)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			if strconv.Itoa(userByID.ID) != tokenClaimsID {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": "unauthorized",
+				})
+			}
+
+			err = postService.DeleteByID(ctx, id)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": err.Error(),
@@ -100,7 +167,7 @@ func DeleteByID(ctx context.Context, postService service.IPostService) fiber.Han
 	}
 }
 
-func UpdatePost(ctx context.Context, postService service.IPostService) fiber.Handler {
+func UpdatePost(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
@@ -108,13 +175,33 @@ func UpdatePost(ctx context.Context, postService service.IPostService) fiber.Han
 				"error": err.Error(),
 			})
 		}
-
 		postUpdateRequest := new(dto.PostUpdateRequest)
 		if err := c.BodyParser(&postUpdateRequest); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": err.Error(),
 			})
 		} else {
+			tokenClaimsID, err := middleware.ExtractTokenMetadata(c)
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			userID, _ := strconv.Atoi(tokenClaimsID)
+			userByID, err := userService.GetUserByID(ctx, userID)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			if strconv.Itoa(userByID.ID) != tokenClaimsID {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": "unauthorized",
+				})
+			}
+
 			post, err := postService.UpdatePost(ctx, postUpdateRequest.Title, postUpdateRequest.Content, id)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
