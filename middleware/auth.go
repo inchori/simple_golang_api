@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	jwtware "github.com/gofiber/contrib/jwt"
@@ -18,33 +17,48 @@ func Protected() fiber.Handler {
 	})
 }
 
-func validateToken(tokenString string) error {
+func ExtractTokenMetadata(c *fiber.Ctx) (string, error) {
+	bearerToken := c.Get("Authorization")
+	token := strings.TrimPrefix(bearerToken, "Bearer ")
+
+	sub, err := validateToken(token)
+	if err != nil {
+		return "", c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return sub, nil
+}
+
+func validateToken(tokenString string) (string, error) {
 	if tokenString == "" {
-		return errors.New("empty token")
+		return "", errors.New("empty token")
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Claims.(jwt.MapClaims); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["sub"])
-		}
 		return []byte("secret"), nil
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return nil
-	} else {
-		return err
+	sub, err := token.Claims.GetSubject()
+	if err != nil {
+		return "", err
 	}
+
+	if !token.Valid {
+		return "", errors.New("invalid token")
+	}
+	return sub, nil
 }
 
 func authentication(c *fiber.Ctx) error {
 	bearerToken := c.Get("Authorization")
 	token := strings.TrimPrefix(bearerToken, "Bearer ")
 
-	if err := validateToken(token); err != nil {
+	if _, err := validateToken(token); err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -55,8 +69,8 @@ func authentication(c *fiber.Ctx) error {
 func jwtError(c *fiber.Ctx, err error) error {
 	if err.Error() == "Missing or malformed JWT" {
 		return c.Status(fiber.StatusBadRequest).
-			JSON(fiber.Map{"message": "Missing or malformed JWT"})
+			JSON(fiber.Map{"message": "missing or malformed JWT"})
 	}
 	return c.Status(fiber.StatusUnauthorized).
-		JSON(fiber.Map{"message": "Invalid or expired JWT"})
+		JSON(fiber.Map{"message": "invalid or expired JWT"})
 }

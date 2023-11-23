@@ -3,8 +3,10 @@ package handler
 import (
 	"context"
 	"grpc_identity/dto"
+	"grpc_identity/middleware"
 	"grpc_identity/service"
 	"grpc_identity/utils"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -86,16 +88,20 @@ func DeleteUserByID(ctx context.Context, userService service.IUserService) fiber
 				"error": err.Error(),
 			})
 		} else {
-			//userByID, err := userService.GetUserByID(ctx, id)
-			//if err != nil {
-			//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			//		"error": err.Error(),
-			//	})
-			//}
-			//
-			//middleware.Authentication()
+			tokenClaimsID, err := middleware.ExtractTokenMetadata(c)
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
 
-			err := userService.DeleteByID(ctx, id)
+			if strconv.Itoa(id) != tokenClaimsID {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": "unauthorized",
+				})
+			}
+
+			err = userService.DeleteByID(ctx, id)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": err.Error(),
@@ -117,6 +123,19 @@ func UpdateUser(ctx context.Context, userService service.IUserService) fiber.Han
 				"error": err.Error(),
 			})
 		} else {
+			tokenClaimsID, err := middleware.ExtractTokenMetadata(c)
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			if strconv.Itoa(id) != tokenClaimsID {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": "unauthorized",
+				})
+			}
+
 			userUpdateRequest := new(dto.UserUpdateRequest)
 			if err := c.BodyParser(&userUpdateRequest); err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

@@ -37,21 +37,29 @@ func Login(ctx context.Context, userService service.IUserService) fiber.Handler 
 				})
 			}
 
-			token := jwt.New(jwt.SigningMethodHS256)
-
-			claims := token.Claims.(jwt.MapClaims)
-			claims["sub"] = strconv.Itoa(userByEmail.ID)
-			claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-
-			t, err := token.SignedString([]byte("secret"))
+			jwtToken, err := createAccessToken(strconv.Itoa(userByEmail.ID))
 			if err != nil {
 				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 					"error": err.Error(),
 				})
 			}
 			return c.JSON(fiber.Map{
-				"token": t,
+				"token": jwtToken,
 			})
 		}
 	}
+}
+
+func createAccessToken(ID string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": ID,
+		"exp": time.Now().Add(time.Hour * 72).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
