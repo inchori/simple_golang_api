@@ -40,7 +40,7 @@ func CreateUser(ctx context.Context, userService service.IUserService) fiber.Han
 					"error": err.Error(),
 				})
 			} else {
-				return c.JSON(user)
+				return c.JSON(dto.NewUserResponse(user))
 			}
 		}
 	}
@@ -60,7 +60,7 @@ func GetUserByID(ctx context.Context, userService service.IUserService) fiber.Ha
 					"error": err.Error(),
 				})
 			} else {
-				return c.JSON(userByID)
+				return c.JSON(dto.NewUserResponse(userByID))
 			}
 		}
 	}
@@ -75,7 +75,7 @@ func GetUserByName(ctx context.Context, userService service.IUserService) fiber.
 				"error": err.Error(),
 			})
 		} else {
-			return c.JSON(userByName)
+			return c.JSON(dto.NewUserResponse(userByName))
 		}
 	}
 }
@@ -149,7 +149,7 @@ func UpdateUser(ctx context.Context, userService service.IUserService) fiber.Han
 					"error": err.Error(),
 				})
 			}
-			return c.JSON(userResponse)
+			return c.JSON(dto.NewUserResponse(userResponse))
 		}
 	}
 }

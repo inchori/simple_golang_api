@@ -24,14 +24,14 @@ func Login(ctx context.Context, userService service.IUserService) fiber.Handler 
 				"error": err.Error(),
 			})
 		} else {
-			userByEmail, hashPassword, err := userService.GetUserByEmail(ctx, loginRequest.Email)
+			userByEmail, err := userService.GetUserByEmail(ctx, loginRequest.Email)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": err.Error(),
 				})
 			}
 
-			if !utils.CheckPasswordHash(loginRequest.Password, hashPassword) {
+			if !utils.CheckPasswordHash(loginRequest.Password, userByEmail.Password) {
 				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 					"error": "invalid hashPassword",
 				})

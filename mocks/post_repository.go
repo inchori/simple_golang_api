@@ -14,25 +14,25 @@ type IPostRepository struct {
 	mock.Mock
 }
 
-// CreatePost provides a mock function with given fields: ctx, title, content
-func (_m *IPostRepository) CreatePost(ctx context.Context, title string, content string) (*ent.Post, error) {
-	ret := _m.Called(ctx, title, content)
+// CreatePost provides a mock function with given fields: ctx, title, content, user
+func (_m *IPostRepository) CreatePost(ctx context.Context, title string, content string, user *ent.User) (*ent.Post, error) {
+	ret := _m.Called(ctx, title, content, user)
 
 	var r0 *ent.Post
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*ent.Post, error)); ok {
-		return rf(ctx, title, content)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, *ent.User) (*ent.Post, error)); ok {
+		return rf(ctx, title, content, user)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *ent.Post); ok {
-		r0 = rf(ctx, title, content)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, *ent.User) *ent.Post); ok {
+		r0 = rf(ctx, title, content, user)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ent.Post)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
-		r1 = rf(ctx, title, content)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, *ent.User) error); ok {
+		r1 = rf(ctx, title, content, user)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -73,6 +73,32 @@ func (_m *IPostRepository) GetPostByID(ctx context.Context, id int) (*ent.Post, 
 
 	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
 		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPostByUserID provides a mock function with given fields: ctx, userID
+func (_m *IPostRepository) GetPostByUserID(ctx context.Context, userID int) ([]*ent.Post, error) {
+	ret := _m.Called(ctx, userID)
+
+	var r0 []*ent.Post
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int) ([]*ent.Post, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int) []*ent.Post); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*ent.Post)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = rf(ctx, userID)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -2,15 +2,12 @@ package service_test
 
 import (
 	"context"
-	"grpc_identity/dto"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"grpc_identity/ent"
 	"grpc_identity/mocks"
 	"grpc_identity/service"
 	"testing"
-	"time"
-
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 // TODO: GetUserByEmail
@@ -33,8 +30,6 @@ func TestUserService_CreateUser(t *testing.T) {
 			Password: "password",
 		}
 
-		mockUserResp := dto.NewUserResponse(mockUser)
-
 		mockUserService, deps := createMockUserService()
 		deps.mockUserRepo.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(mockUser, nil).Once()
@@ -42,7 +37,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		res, err := mockUserService.CreateUser(context.TODO(), mock.Anything, mock.Anything, mock.Anything)
 
 		require.NoError(t, err)
-		require.Equal(t, res, mockUserResp)
+		require.Equal(t, res, mockUser)
 		deps.mockUserRepo.AssertExpectations(t)
 	})
 }
@@ -56,14 +51,12 @@ func TestUserService_GetUserByID(t *testing.T) {
 			Password: "password",
 		}
 
-		mockUserResp := dto.NewUserResponse(mockUser)
-
 		mockUserService, deps := createMockUserService()
 		deps.mockUserRepo.On("GetUserByID", mock.Anything, mock.Anything).Return(mockUser, nil).Once()
 		res, err := mockUserService.GetUserByID(context.TODO(), 1)
 
 		require.NoError(t, err)
-		require.Equal(t, res, mockUserResp)
+		require.Equal(t, res, mockUser)
 		deps.mockUserRepo.AssertExpectations(t)
 	})
 }
@@ -71,22 +64,37 @@ func TestUserService_GetUserByID(t *testing.T) {
 func TestUserService_GetUserByName(t *testing.T) {
 	t.Run("return user by name", func(t *testing.T) {
 		mockUser := &ent.User{
-			ID:        1,
-			Name:      "",
-			Email:     "",
-			Password:  "",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			ID:       1,
+			Name:     "inchul",
+			Email:    "inchul@example.com",
+			Password: "example",
 		}
-
-		mockUserResponse := dto.NewUserResponse(mockUser)
 
 		mockUserService, deps := createMockUserService()
 		deps.mockUserRepo.On("GetUserByName", mock.Anything, mock.Anything).Return(mockUser, nil).Once()
 		res, err := mockUserService.GetUserByName(context.TODO(), mock.Anything)
 
 		require.NoError(t, err)
-		require.Equal(t, res, mockUserResponse)
+		require.Equal(t, res, mockUser)
+		deps.mockUserRepo.AssertExpectations(t)
+	})
+}
+
+func TestUserService_GetUserByEmail(t *testing.T) {
+	t.Run("get user by email", func(t *testing.T) {
+		mockUser := &ent.User{
+			ID:       1,
+			Name:     "inchul",
+			Email:    "inchul@example.com",
+			Password: "example",
+		}
+
+		mockUserService, deps := createMockUserService()
+		deps.mockUserRepo.On("GetUserByEmail", mock.Anything, mock.Anything).Return(mockUser, nil).Once()
+		res, err := mockUserService.GetUserByEmail(context.TODO(), mock.Anything)
+
+		require.NoError(t, err)
+		require.Equal(t, res, mockUser)
 		deps.mockUserRepo.AssertExpectations(t)
 	})
 }
@@ -111,14 +119,12 @@ func TestUserService_UpdateUser(t *testing.T) {
 			Password: "password",
 		}
 
-		mockUserResp := dto.NewUserResponse(mockUser)
-
 		mockUserService, deps := createMockUserService()
 		deps.mockUserRepo.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockUser, nil).Once()
 		res, err := mockUserService.UpdateUser(context.TODO(), mock.Anything, mock.Anything, 1)
 
 		require.NoError(t, err)
-		require.Equal(t, res, mockUserResp)
+		require.Equal(t, res, mockUser)
 
 		deps.mockUserRepo.AssertExpectations(t)
 	})

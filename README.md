@@ -7,5 +7,5 @@ Build a Simple Blog Service with gRPC and goFiber
 - [X] User CRUD API
 - [X] Blog CRUD API
 - [ ] Configure Edges Between User and Post
-- [ ] User Login API with JWT
+- [X] User Login API with JWT
 - [ ] Support gRPC

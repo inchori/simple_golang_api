@@ -37,7 +37,7 @@ func main() {
 
 	handler.NewLoginHandler(app.Group("/v1/auth"), context.Background(), userService)
 	handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService, protected)
-	handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, protected)
+	handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, userService, protected)
 
 	log.Fatal(app.Listen(":3000"))
 }

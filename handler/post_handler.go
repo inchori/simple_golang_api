@@ -5,18 +5,20 @@ import (
 	"grpc_identity/dto"
 	"grpc_identity/middleware"
 	"grpc_identity/service"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewPostHandler(app fiber.Router, ctx context.Context, postService service.IPostService, protected fiber.Handler) {
-	app.Post("", middleware.Protected(), CreatePost(ctx, postService))
+func NewPostHandler(app fiber.Router, ctx context.Context, postService service.IPostService,
+	userService service.IUserService, protected fiber.Handler) {
+	app.Post("", middleware.Protected(), CreatePost(ctx, postService, userService))
 	app.Get("/:id", GetPostByID(ctx, postService))
 	app.Delete("/:id", protected, DeleteByID(ctx, postService))
 	app.Put("/:id", protected, UpdatePost(ctx, postService))
 }
 
-func CreatePost(ctx context.Context, postService service.IPostService) fiber.Handler {
+func CreatePost(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		postCreateRequest := new(dto.PostCreateRequest)
 		if err := c.BodyParser(&postCreateRequest); err != nil {
@@ -24,13 +26,33 @@ func CreatePost(ctx context.Context, postService service.IPostService) fiber.Han
 				"error": err.Error(),
 			})
 		} else {
-			post, err := postService.CreatePost(ctx, postCreateRequest.Title, postCreateRequest.Content)
+			tokenClaimsID, err := middleware.ExtractTokenMetadata(c)
+			if err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			userByID, err := userService.GetUserByID(ctx, 1)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
+			if strconv.Itoa(userByID.ID) != tokenClaimsID {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"error": "unauthorized",
+				})
+			}
+
+			post, err := postService.CreatePost(ctx, postCreateRequest.Title, postCreateRequest.Content, userByID)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": err.Error(),
 				})
 			} else {
-				return c.JSON(post)
+				return c.JSON(dto.NewPostResponse(post))
 			}
 		}
 	}
@@ -50,7 +72,7 @@ func GetPostByID(ctx context.Context, postService service.IPostService) fiber.Ha
 					"error": err.Error(),
 				})
 			} else {
-				return c.JSON(postByID)
+				return c.JSON(dto.NewPostResponse(postByID))
 			}
 		}
 	}
@@ -93,13 +115,13 @@ func UpdatePost(ctx context.Context, postService service.IPostService) fiber.Han
 				"error": err.Error(),
 			})
 		} else {
-			postResponse, err := postService.UpdatePost(ctx, postUpdateRequest.Title, postUpdateRequest.Content, id)
+			post, err := postService.UpdatePost(ctx, postUpdateRequest.Title, postUpdateRequest.Content, id)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 					"error": err.Error(),
 				})
 			} else {
-				return c.JSON(postResponse)
+				return c.JSON(dto.NewPostResponse(post))
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"grpc_identity/ent"
 	"grpc_identity/ent/user"
+	"time"
 )
 
 type IUserRepository interface {
@@ -49,5 +50,10 @@ func (u *UserRepository) DeleteByID(ctx context.Context, id int) error {
 }
 
 func (u *UserRepository) UpdateUser(ctx context.Context, name, password string, id int) (*ent.User, error) {
-	return u.db.UpdateOneID(id).SetName(name).SetPassword(password).Save(ctx)
+	return u.db.
+		UpdateOneID(id).
+		SetName(name).
+		SetPassword(password).
+		SetUpdatedAt(time.Now()).
+		Save(ctx)
 }

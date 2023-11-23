@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"grpc_identity/dto"
 	"grpc_identity/ent"
 	"grpc_identity/mocks"
 	"grpc_identity/service"
@@ -23,19 +22,24 @@ func createMockPostService() (service.IPostService, *mockPostDeps) {
 
 func TestPostService_CreatePost(t *testing.T) {
 	t.Run("create post", func(t *testing.T) {
+		mockUser := &ent.User{
+			ID:    1,
+			Email: "inchul@example.com",
+			Name:  "inchul",
+		}
+
 		mockPost := &ent.Post{
 			ID:      1,
 			Title:   "title",
 			Content: "content",
 		}
 
-		mockPostResp := dto.NewPostResponse(mockPost)
 		mockPostService, deps := createMockPostService()
-		deps.mockPostRepo.On("CreatePost", mock.Anything, mock.Anything, mock.Anything).Return(mockPost, nil).Once()
-		res, err := mockPostService.CreatePost(context.TODO(), mock.Anything, mock.Anything)
+		deps.mockPostRepo.On("CreatePost", mock.Anything, mock.Anything, mock.Anything, mockUser).Return(mockPost, nil).Once()
+		res, err := mockPostService.CreatePost(context.TODO(), mock.Anything, mock.Anything, mockUser)
 
 		require.NoError(t, err)
-		require.Equal(t, res, mockPostResp)
+		require.Equal(t, res, mockPost)
 
 		deps.mockPostRepo.AssertExpectations(t)
 	})
@@ -49,13 +53,12 @@ func TestPostService_GetPostByID(t *testing.T) {
 			Content: "content",
 		}
 
-		mockPostResp := dto.NewPostResponse(mockPost)
 		mockPostService, deps := createMockPostService()
 		deps.mockPostRepo.On("GetPostByID", mock.Anything, mock.Anything).Return(mockPost, nil).Once()
 		res, err := mockPostService.GetPostByID(context.TODO(), 1)
 
 		require.NoError(t, err)
-		require.Equal(t, res, mockPostResp)
+		require.Equal(t, res, mockPost)
 
 		deps.mockPostRepo.AssertExpectations(t)
 	})
@@ -81,14 +84,13 @@ func TestPostService_UpdatePost(t *testing.T) {
 			Content: "content",
 		}
 
-		mockPostResp := dto.NewPostResponse(mockPost)
 		mockPostService, deps := createMockPostService()
 		deps.mockPostRepo.On("UpdatePost", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(mockPost, nil).Once()
 		res, err := mockPostService.UpdatePost(context.TODO(), mock.Anything, mock.Anything, 1)
 
 		require.NoError(t, err)
-		require.Equal(t, res, mockPostResp)
+		require.Equal(t, res, mockPost)
 
 		deps.mockPostRepo.AssertExpectations(t)
 	})
