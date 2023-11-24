@@ -2,12 +2,13 @@ package service_test
 
 import (
 	"context"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"grpc_identity/ent"
 	"grpc_identity/mocks"
 	"grpc_identity/service"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 type mockPostDeps struct {
@@ -73,6 +74,32 @@ func TestPostService_DeleteByID(t *testing.T) {
 		require.NoError(t, err)
 
 		deps.mockPostRepo.AssertExpectations(t)
+	})
+}
+
+func TestPostService_GetPostByUserID(t *testing.T) {
+	t.Run("return posts by user Id", func(t *testing.T) {
+		mockUser := &ent.User{
+			ID:       1,
+			Email:    "inchul@example.com",
+			Password: "example",
+		}
+
+		mockPost := &ent.Post{
+			ID:      1,
+			Title:   "title",
+			Content: "content",
+		}
+
+		var mockPostResponse []*ent.Post
+		mockPosts := append(mockPostResponse, mockPost)
+
+		mockPostService, deps := createMockPostService()
+		deps.mockPostRepo.On("GetPostByUserID", mock.Anything, mock.Anything).Return(mockPosts, nil).Once()
+		res, err := mockPostService.GetPostByUserID(context.TODO(), mockUser.ID)
+
+		require.NoError(t, err)
+		require.Equal(t, res, mockPosts)
 	})
 }
 

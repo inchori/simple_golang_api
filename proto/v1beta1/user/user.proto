@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package proto.v1beta1.user;
+
+option go_package = "pb/v1beta1/user";
+
+service User {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUserByID(GetUserByIDRequest) returns (GetUserByIDResponse);
+  rpc GetUserByName(GetUserByNameRequest) returns (GetUserByNameResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+message UserMessage {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message CreateUserResponse {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message UpdateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message UpdateUserResponse {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {
+
+}
+
+message GetUserByIDRequest {
+  string id = 1;
+}
+
+message GetUserByIDResponse {
+  UserMessage user = 1;
+}
+
+message GetUserByNameRequest {
+  string name = 1;
+}
+
+message GetUserByNameResponse {
+  UserMessage user = 1;
+}

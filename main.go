@@ -40,4 +40,5 @@ func main() {
 	handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, userService, protected)
 
 	log.Fatal(app.Listen(":3000"))
+
 }
