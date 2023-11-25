@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/gofiber/fiber/v2"
 	"grpc_identity/config"
 	"grpc_identity/database"
 	"grpc_identity/handler"
@@ -9,8 +10,6 @@ import (
 	"grpc_identity/repository"
 	"grpc_identity/service"
 	"log"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func main() {

@@ -1,0 +1,10 @@
+version: v1
+plugins:
+  - plugin: go
+    out: ..
+  - plugin: go-grpc
+    out: ..
+  - plugin: grpc-gateway
+    out: ..
+    opt:
+      - logtostderr=true

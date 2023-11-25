@@ -1,0 +1,4 @@
+version: v1
+name: buf.build/inchori/grpc_identity
+deps:
+  - buf.build/googleapis/googleapis

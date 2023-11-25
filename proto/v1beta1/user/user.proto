@@ -4,12 +4,41 @@ package proto.v1beta1.user;
 
 option go_package = "pb/v1beta1/user";
 
+import "google/api/annotations.proto";
+
 service User {
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-  rpc GetUserByID(GetUserByIDRequest) returns (GetUserByIDResponse);
-  rpc GetUserByName(GetUserByNameRequest) returns (GetUserByNameResponse);
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/v2/users"
+      body: "*"
+    };
+  };
+  rpc GetUserByID(GetUserByIDRequest) returns (GetUserByIDResponse) {
+    option (google.api.http) = {
+      get: "/v2/users/{id}"
+    };
+  };
+  rpc GetUserByName(GetUserByNameRequest) returns (GetUserByNameResponse) {
+    option (google.api.http) = {
+      get: "/v2/users/{name}"
+    };
+  };
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse) {
+    option (google.api.http) = {
+      get: "/v2/users/{email}"
+    };
+  };
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      put: "/v2/users/{id}"
+      body: "*"
+    };
+  };
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {
+      delete: "/v2/users/{id}"
+    };
+  };
 }
 
 message UserMessage {
@@ -25,15 +54,16 @@ message CreateUserRequest {
 }
 
 message CreateUserResponse {
-  string name = 1;
-  string email = 2;
-  string password = 3;
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
 }
 
 message UpdateUserRequest {
-  string name = 1;
-  string email = 2;
-  string password = 3;
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+  string password = 4;
 }
 
 message UpdateUserResponse {
@@ -43,7 +73,7 @@ message UpdateUserResponse {
 }
 
 message DeleteUserRequest {
-  string id = 1;
+  int64 id = 1;
 }
 
 message DeleteUserResponse {
@@ -51,7 +81,7 @@ message DeleteUserResponse {
 }
 
 message GetUserByIDRequest {
-  string id = 1;
+  int64 id = 1;
 }
 
 message GetUserByIDResponse {
@@ -63,5 +93,13 @@ message GetUserByNameRequest {
 }
 
 message GetUserByNameResponse {
+  UserMessage user = 1;
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message GetUserByEmailResponse {
   UserMessage user = 1;
 }

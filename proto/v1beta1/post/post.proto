@@ -4,12 +4,35 @@ package proto.v1beta1.post;
 
 option go_package = "pb/v1beta1/post";
 
-service User {
-  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
-  rpc GetPost(GetPostByIDRequest) returns (GetUserByIDResponse);
-  rpc GetPostByUser(GetUserByUserRequest) returns (GetUserByNameResponse);
-  rpc UpdatePost(UpdateUserRequest) returns (UpdateUserResponse);
-  rpc DeletePost(DeleteUserRequest) returns (DeleteUserResponse);
+import "google/api/annotations.proto";
+
+service Post {
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse) {
+    option (google.api.http) = {
+      post: "/v2/posts"
+      body: "*"
+    };
+  };
+  rpc GetPost(GetPostByIDRequest) returns (GetPostByIDResponse) {
+    option (google.api.http) = {
+      get: "/v2/posts/{id}"
+    };
+  };
+  rpc GetPostByUser(GetPostByUserRequest) returns (GetPostByUserResponse) {
+    option (google.api.http) = {
+      get: "/v2/posts/users/{user_id}"
+    };
+  };
+  rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse) {
+    option (google.api.http) = {
+      put: "/v2/posts/{id}"
+    };
+  };
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse) {
+    option (google.api.http) = {
+      delete: "/v2/posts/{id}"
+    };
+  };
 }
 
 message PostMessage {
@@ -19,45 +42,45 @@ message PostMessage {
 }
 
 message CreatePostRequest {
-  int64 id = 1;
-  string title = 2;
-  string content = 3;
+  string title = 1;
+  string content = 2;
+  int64 user_id = 3;
 }
 
 message CreatePostResponse {
   PostMessage post = 1;
 }
 
-message UpdateUserRequest {
-  string name = 1;
-  string email = 2;
-  string password = 3;
+message UpdatePostRequest {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
 }
 
-message UpdateUserResponse {
+message UpdatePostResponse {
   PostMessage post = 1;
 }
 
-message DeleteUserRequest {
-  string id = 1;
+message DeletePostRequest {
+  int64 id = 1;
 }
 
-message DeleteUserResponse {
+message DeletePostResponse {
 
 }
 
 message GetPostByIDRequest {
-  string id = 1;
+  int64 id = 1;
 }
 
-message GetUserByIDResponse {
-  PostMessage psot = 1;
+message GetPostByIDResponse {
+  PostMessage post = 1;
 }
 
-message GetUserByUserRequest {
-  string name = 1;
+message GetPostByUserRequest {
+  int64 user_id = 1;
 }
 
-message GetUserByNameResponse {
-  UserMessage user = 1;
+message GetPostByUserResponse {
+  repeated PostMessage post = 1;
 }
