@@ -10,6 +10,6 @@ Build a Simple Blog Service with gRPC and goFiber
 - [X] User Login API with JWT
 - [ ] Error Handler
 - [ ] Swagger Docs
-- [ ] Support gRPC
+- [X] Support GRPC
 - [ ] Apply gRPC-gateway
 - [ ] Github Actions CI
