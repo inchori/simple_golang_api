@@ -12,7 +12,7 @@ Build a Simple Blog Service with gRPC and goFiber
 
 ### gRPC
 - [X] Support GRPC
-- [ ] gRPC Interceptor for JWT
+- [X] gRPC Interceptor for JWT
 - [ ] Apply gRPC-gateway
 
 ### ETC
