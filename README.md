@@ -16,6 +16,6 @@ Build a Simple Blog Service with gRPC and goFiber
 - [X] Apply gRPC-gateway
 
 ### ETC
-- [ ] GitHub Actions CI
+- [X] GitHub Actions CI
 - [ ] Error Handler
 - [ ] Swagger Docs
