@@ -32,7 +32,7 @@ func main() {
 	dbClient := database.ConnectDB(loadConfig)
 	ctx := context.Background()
 	if err := dbClient.Schema.Create(ctx); err != nil {
-		logrus.Fatal("failed to migrate database schema: %v", err)
+		logrus.Fatalf("failed to migrate database schema: %v", err)
 	}
 
 	userRepository := repository.NewUserRepository(dbClient.User)
@@ -71,7 +71,7 @@ func main() {
 		go func() {
 			logrus.Infof("gRPC server is running on %s port", loadConfig.GRPCPort)
 			if err := grpcSvr.Serve(lis); err != nil {
-				logrus.Fatal("failed to serve gRPC server: %v", err)
+				logrus.Fatalf("failed to serve gRPC server: %v", err)
 			}
 		}()
 

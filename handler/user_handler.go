@@ -143,6 +143,12 @@ func UpdateUser(ctx context.Context, userService service.IUserService) fiber.Han
 				})
 			}
 			password, err := utils.HashPassword(userUpdateRequest.Password)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+
 			userResponse, err := userService.UpdateUser(ctx, userUpdateRequest.Name, password, id)
 			if err != nil {
 				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
