@@ -2,12 +2,13 @@ package server
 
 import (
 	"context"
-	"google.golang.org/grpc"
 	"grpc_identity/middleware"
 	"grpc_identity/pb/v1beta1/auth"
 	"grpc_identity/service"
 	"grpc_identity/utils"
 	"strconv"
+
+	"google.golang.org/grpc"
 )
 
 type AuthGRPCServiceServer struct {

@@ -12,6 +12,7 @@ import (
 	"grpc_identity/service"
 	"log"
 	"net"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
@@ -25,13 +26,13 @@ func main() {
 
 	loadConfig, err := config.LoadConfigFile()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatalf("failed to load config file: %v", err)
 	}
 
 	dbClient := database.ConnectDB(loadConfig)
 	ctx := context.Background()
 	if err := dbClient.Schema.Create(ctx); err != nil {
-		log.Fatal(err)
+		logrus.Fatal("failed to migrate database schema: %v", err)
 	}
 
 	userRepository := repository.NewUserRepository(dbClient.User)
@@ -42,7 +43,7 @@ func main() {
 	if loadConfig.Server == "grpc" {
 		lis, err := net.Listen("tcp", ":"+loadConfig.GRPCPort)
 		if err != nil {
-			log.Fatal(err)
+			logrus.Fatalf("failed to lieten on %s port: %v", loadConfig.GRPCPort, err)
 		}
 
 		methods := []string{
@@ -67,9 +68,22 @@ func main() {
 		server.RegisterPostService(postService, userService, grpcSvr)
 		reflection.Register(grpcSvr)
 
-		logger.Infof("gRPC server is running on %s port", loadConfig.GRPCPort)
-		if err := grpcSvr.Serve(lis); err != nil {
-			log.Fatal(err)
+		go func() {
+			logrus.Infof("gRPC server is running on %s port", loadConfig.GRPCPort)
+			if err := grpcSvr.Serve(lis); err != nil {
+				logrus.Fatal("failed to serve gRPC server: %v", err)
+			}
+		}()
+
+		if loadConfig.GatewayEnabled == "true" {
+			newMux, err := server.GatewayServer(lis.Addr().String())
+			if err != nil {
+				logrus.Fatalf("failed to serve configure gateway server: %v", err)
+			}
+			logrus.Infof("gRPC server with gateway is running on %s port", loadConfig.GatewayPort)
+			if err := http.ListenAndServe(":"+loadConfig.GatewayPort, newMux); err != nil {
+				log.Fatalf("failed to listen gateway server: %v", err)
+			}
 		}
 
 	} else if loadConfig.Server == "http" {
@@ -78,7 +92,7 @@ func main() {
 		handler.NewLoginHandler(app.Group("/v1/auth"), context.Background(), userService)
 		handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService, protected)
 		handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, userService, protected)
-		log.Fatal(app.Listen(":" + loadConfig.HTTPPort))
+		logrus.Fatal(app.Listen(":" + loadConfig.HTTPPort))
 	}
 
 }
