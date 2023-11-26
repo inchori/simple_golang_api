@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"grpc_identity/config"
 	"grpc_identity/database"
 	"grpc_identity/handler"
@@ -15,6 +12,12 @@ import (
 	"grpc_identity/service"
 	"log"
 	"net"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -37,7 +40,7 @@ func main() {
 	postService := service.NewPostService(postRepository)
 
 	if loadConfig.Server == "grpc" {
-		lis, err := net.Listen("tcp", ":4040")
+		lis, err := net.Listen("tcp", ":"+loadConfig.GRPCPort)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -50,15 +53,21 @@ func main() {
 			"proto.v1beta1.user.User/DeleteUser",
 		}
 
-		jwtInterceptor := interceptor.NewJWTInterceptor(methods)
-		unaryInterceptor := grpc.UnaryInterceptor(jwtInterceptor.Interceptor)
+		logger := logrus.New()
 
-		grpcSvr := grpc.NewServer(unaryInterceptor)
+		jwtInterceptor := interceptor.NewJWTInterceptor(methods)
+
+		grpcSvr := grpc.NewServer(grpc.ChainUnaryInterceptor(
+			jwtInterceptor.Interceptor,
+			logging.UnaryServerInterceptor(interceptor.LoggerInterceptor(logger)),
+		))
+
 		server.RegisterAuthService(userService, grpcSvr)
 		server.RegisterUserService(userService, grpcSvr)
 		server.RegisterPostService(postService, userService, grpcSvr)
 		reflection.Register(grpcSvr)
 
+		logger.Infof("gRPC server is running on %s port", loadConfig.GRPCPort)
 		if err := grpcSvr.Serve(lis); err != nil {
 			log.Fatal(err)
 		}
@@ -69,7 +78,7 @@ func main() {
 		handler.NewLoginHandler(app.Group("/v1/auth"), context.Background(), userService)
 		handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService, protected)
 		handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, userService, protected)
-		log.Fatal(app.Listen(":3000"))
+		log.Fatal(app.Listen(":" + loadConfig.HTTPPort))
 	}
 
 }
