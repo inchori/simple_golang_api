@@ -2,9 +2,13 @@ package server
 
 import (
 	"context"
+	"errors"
+	"github.com/golang-jwt/jwt/v5"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"google.golang.org/grpc"
 	"grpc_identity/pb/v1beta1/user"
 	"grpc_identity/service"
+	"strconv"
 )
 
 type UserGRPCServiceServer struct {
@@ -13,10 +17,12 @@ type UserGRPCServiceServer struct {
 }
 
 func RegisterUserService(userService service.IUserService, svr *grpc.Server) {
-	user.RegisterUserServer(svr, &UserGRPCServiceServer{userService: userService})
+	user.RegisterUserServer(svr, &UserGRPCServiceServer{
+		userService: userService,
+	})
 }
 
-func (u *UserGRPCServiceServer) CreateGRPCUser(ctx context.Context, req *user.CreateUserRequest) (*user.CreateUserResponse, error) {
+func (u *UserGRPCServiceServer) CreateUser(ctx context.Context, req *user.CreateUserRequest) (*user.CreateUserResponse, error) {
 	createUser, err := u.userService.CreateUser(ctx, req.Name, req.Email, req.Password)
 	if err != nil {
 		return nil, err
@@ -76,8 +82,32 @@ func (u *UserGRPCServiceServer) GetUserByEmail(ctx context.Context, req *user.Ge
 	return &user.GetUserByEmailResponse{User: userMsg}, nil
 }
 
-func (u *UserGRPCServiceServer) DeleteByID(ctx context.Context, req *user.DeleteUserRequest) (*user.DeleteUserResponse, error) {
-	err := u.userService.DeleteByID(ctx, int(req.Id))
+func (u *UserGRPCServiceServer) DeleteUser(ctx context.Context, req *user.DeleteUserRequest) (*user.DeleteUserResponse, error) {
+	jwtToken, err := grpc_auth.AuthFromMD(ctx, "Bearer")
+	if err != nil {
+		return nil, err
+	}
+	if jwtToken == "" {
+		return nil, errors.New("empty token")
+	}
+
+	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secret"), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	subID, err := token.Claims.GetSubject()
+	if err != nil {
+		return nil, err
+	}
+
+	if subID != strconv.Itoa(int(req.Id)) {
+		return nil, err
+	}
+
+	err = u.userService.DeleteByID(ctx, int(req.Id))
 	if err != nil {
 		return nil, err
 	}

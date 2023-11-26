@@ -55,7 +55,7 @@ type (
 		log func(...any)
 		// hooks to execute on mutations.
 		hooks *hooks
-		// interceptors to execute on queries.
+		// interceptor to execute on queries.
 		inters *inters
 	}
 	// Option function to configure the client.
@@ -189,8 +189,8 @@ func (c *Client) Use(hooks ...Hook) {
 	c.User.Use(hooks...)
 }
 
-// Intercept adds the query interceptors to all the entity clients.
-// In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
+// Intercept adds the query interceptor to all the entity clients.
+// In order to add interceptor to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Post.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
@@ -224,7 +224,7 @@ func (c *PostClient) Use(hooks ...Hook) {
 	c.hooks.Post = append(c.hooks.Post, hooks...)
 }
 
-// Intercept adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptor to the interceptor stack.
 // A call to `Intercept(f, g, h)` equals to `post.Intercept(f(g(h())))`.
 func (c *PostClient) Intercept(interceptors ...Interceptor) {
 	c.inters.Post = append(c.inters.Post, interceptors...)
@@ -337,7 +337,7 @@ func (c *PostClient) Hooks() []Hook {
 	return c.hooks.Post
 }
 
-// Interceptors returns the client interceptors.
+// Interceptors returns the client interceptor.
 func (c *PostClient) Interceptors() []Interceptor {
 	return c.inters.Post
 }
@@ -373,7 +373,7 @@ func (c *UserClient) Use(hooks ...Hook) {
 	c.hooks.User = append(c.hooks.User, hooks...)
 }
 
-// Intercept adds a list of query interceptors to the interceptors stack.
+// Intercept adds a list of query interceptor to the interceptor stack.
 // A call to `Intercept(f, g, h)` equals to `user.Intercept(f(g(h())))`.
 func (c *UserClient) Intercept(interceptors ...Interceptor) {
 	c.inters.User = append(c.inters.User, interceptors...)
@@ -486,7 +486,7 @@ func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
 }
 
-// Interceptors returns the client interceptors.
+// Interceptors returns the client interceptor.
 func (c *UserClient) Interceptors() []Interceptor {
 	return c.inters.User
 }
@@ -506,7 +506,7 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 	}
 }
 
-// hooks and interceptors per client, for fast access.
+// hooks and interceptor per client, for fast access.
 type (
 	hooks struct {
 		Post, User []ent.Hook

@@ -11,6 +11,7 @@ import (
 	"grpc_identity/middleware"
 	"grpc_identity/repository"
 	"grpc_identity/server"
+	"grpc_identity/server/interceptor"
 	"grpc_identity/service"
 	"log"
 	"net"
@@ -36,16 +37,24 @@ func main() {
 	postService := service.NewPostService(postRepository)
 
 	if loadConfig.Server == "grpc" {
-		//conn, err := grpc.DialContext(context.Background(), "localhost:4040", grpc.WithTransportCredentials(insecure.NewCredentials()))
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
 		lis, err := net.Listen("tcp", ":4040")
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		grpcSvr := grpc.NewServer()
+		methods := []string{
+			"proto.v1beta1.post.Post/UpdatePost",
+			"proto.v1beta1.post.Post/DeletePost",
+			"proto.v1beta1.user.Post/GetPostByUser",
+			"proto.v1beta1.user.User/UpdateUser",
+			"proto.v1beta1.user.User/DeleteUser",
+		}
+
+		jwtInterceptor := interceptor.NewJWTInterceptor(methods)
+		unaryInterceptor := grpc.UnaryInterceptor(jwtInterceptor.Interceptor)
+
+		grpcSvr := grpc.NewServer(unaryInterceptor)
+		server.RegisterAuthService(userService, grpcSvr)
 		server.RegisterUserService(userService, grpcSvr)
 		server.RegisterPostService(postService, userService, grpcSvr)
 		reflection.Register(grpcSvr)
@@ -62,14 +71,5 @@ func main() {
 		handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, userService, protected)
 		log.Fatal(app.Listen(":3000"))
 	}
-
-	//srv := grpc.NewServer()
-
-	//userGRPCHandler := server.NewUserGRPCHandler(userService)
-	//user.RegisterUserServer(srv, &userGRPCHandler)
-
-	//if err := srv.Serve(lis); err != nil {
-	//	log.Fatal(err)
-	//}
 
 }

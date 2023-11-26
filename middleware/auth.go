@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"strings"
+	"time"
 
 	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
@@ -73,4 +74,18 @@ func jwtError(c *fiber.Ctx, err error) error {
 	}
 	return c.Status(fiber.StatusUnauthorized).
 		JSON(fiber.Map{"message": "invalid or expired JWT"})
+}
+
+func CreateAccessToken(ID string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": ID,
+		"exp": time.Now().Add(time.Hour * 72).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
