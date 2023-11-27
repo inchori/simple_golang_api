@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// LoggerInterceptor from https://github.com/grpc-ecosystem/go-grpc-middleware/blob/main/interceptors/logging/examples/logrus/example_test.go
 func LoggerInterceptor(l logrus.FieldLogger) logging.Logger {
 	return logging.LoggerFunc(func(_ context.Context, lvl logging.Level, msg string, fields ...any) {
 		f := make(map[string]any, len(fields)/2)
