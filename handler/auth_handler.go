@@ -15,6 +15,17 @@ func NewLoginHandler(app fiber.Router, ctx context.Context, userService service.
 	app.Post("/login", Login(ctx, userService))
 }
 
+// Login user login
+//
+//	@Summary	User Login
+//	@Tags		auth
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.LoginRequest	true	"Login"
+//	@Success	200		{object}	dto.LoginResponse
+//	@Router		/v1/auth/login [post]
+//
+// @Security
 func Login(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		loginRequest := new(dto.LoginRequest)
@@ -42,9 +53,9 @@ func Login(ctx context.Context, userService service.IUserService) fiber.Handler 
 					"error": err.Error(),
 				})
 			}
-			return c.JSON(fiber.Map{
-				"token": jwtToken,
-			})
+			return c.JSON(
+				dto.NewLoginResponse(jwtToken),
+			)
 		}
 	}
 }

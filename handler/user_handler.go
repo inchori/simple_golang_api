@@ -19,6 +19,15 @@ func NewUserHandler(app fiber.Router, ctx context.Context, userService service.I
 	app.Put("/:id", protected, UpdateUser(ctx, userService))
 }
 
+// CreateUser create a user
+//
+//	@Summary	Create a Post
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.UserCreateRequest	true	"Create a User Request Body"
+//	@Success	200		{object}	dto.UserResponse
+//	@Router		/v1/users/signIn [post]
 func CreateUser(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userRequest := new(dto.UserCreateRequest)
@@ -46,6 +55,14 @@ func CreateUser(ctx context.Context, userService service.IUserService) fiber.Han
 	}
 }
 
+// GetUserByID get a user by ID
+//
+//	@Summary	Get a User By ID
+//	@Tags		User
+//	@Produce	json
+//	@Param		id	path		int	true	"User ID"
+//	@Success	200	{object}	dto.UserResponse
+//	@Router		/v1/users/{id} [get]
 func GetUserByID(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
@@ -66,6 +83,14 @@ func GetUserByID(ctx context.Context, userService service.IUserService) fiber.Ha
 	}
 }
 
+// GetUserByName get a user by name
+//
+//	@Summary	Get a User By Name
+//	@Tags		User
+//	@Produce	json
+//	@Param		name	path		string	true	"Username"
+//	@Success	200	{object}	dto.UserResponse
+//	@Router		/v1/users/{name} [get]
 func GetUserByName(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		name := c.Params("name")
@@ -80,6 +105,14 @@ func GetUserByName(ctx context.Context, userService service.IUserService) fiber.
 	}
 }
 
+// DeleteUserByID delete a user by ID
+//
+//	@Summary	Delete a user
+//	@Tags		User
+//	@Param		id	path		int	true	"User ID"
+//	@Success	200	{object}	string
+//	@Router		/v1/users/{id} [delete]
+//	@Security	Bearer
 func DeleteUserByID(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
@@ -115,6 +148,16 @@ func DeleteUserByID(ctx context.Context, userService service.IUserService) fiber
 	}
 }
 
+// UpdateUser update a user
+//
+//	@Summary	Update a User
+//	@Tags		User
+//	@Accept		json
+//	@Produce	json
+//	@Param		request	body		dto.UserUpdateRequest	true	"Update User Request Body"
+//	@Success	200		{object}	dto.UserResponse
+//	@Router		/v1/users/{id} [put]
+//	@Security	Bearer
 func UpdateUser(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")

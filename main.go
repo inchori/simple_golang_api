@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/gofiber/swagger"
 	"grpc_identity/config"
 	"grpc_identity/database"
 	"grpc_identity/handler"
@@ -19,8 +20,20 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	_ "grpc_identity/docs"
 )
 
+//	@title						Simple Blog CRUD API
+//	@version					1.0
+//	@termsOfService				http://swagger.io/terms/
+//	@contact.name				Inchul Song
+//	@contact.email				sic61695@gmail.com
+//	@license.name				Apache 2.0
+//	@license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+//	@securityDefinitions.apikey	Bearer
+//	@in							header
+//	@name						Authorization
+//	@description				Type "Bearer" followed by a space and JWT token.
 func main() {
 	app := fiber.New()
 
@@ -93,6 +106,8 @@ func main() {
 		handler.NewLoginHandler(app.Group("/v1/auth"), context.Background(), userService)
 		handler.NewUserHandler(app.Group("/v1/users"), context.Background(), userService, protected)
 		handler.NewPostHandler(app.Group("/v1/posts"), context.Background(), postService, userService, protected)
+
+		app.Get("/swagger/*", swagger.HandlerDefault)
 		logrus.Fatal(app.Listen(":" + loadConfig.HTTPPort))
 	}
 
