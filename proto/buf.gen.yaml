@@ -8,3 +8,5 @@ plugins:
     out: ..
     opt:
       - logtostderr=true
+  - plugin: openapiv2
+    out: ..
