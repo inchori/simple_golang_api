@@ -29,7 +29,7 @@ func GatewayServer(grpcListenAddr string) (*runtime.ServeMux, error) {
 	err = auth.RegisterAuthHandler(ctx, mux, conn)
 	if err != nil {
 		logrus.Fatalf("failed to register auth handler gateway: %v", err)
-		return nil, fmt.Errorf("failed to register auth handler gateway: %v\", err")
+		return nil, fmt.Errorf("failed to register auth handler gateway: %v", err)
 	}
 
 	err = user.RegisterUserHandler(ctx, mux, conn)

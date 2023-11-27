@@ -24,8 +24,6 @@ func NewLoginHandler(app fiber.Router, ctx context.Context, userService service.
 //	@Param		request	body		dto.LoginRequest	true	"Login"
 //	@Success	200		{object}	dto.LoginResponse
 //	@Router		/v1/auth/login [post]
-//
-// @Security
 func Login(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		loginRequest := new(dto.LoginRequest)

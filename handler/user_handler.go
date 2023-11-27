@@ -89,7 +89,7 @@ func GetUserByID(ctx context.Context, userService service.IUserService) fiber.Ha
 //	@Tags		User
 //	@Produce	json
 //	@Param		name	path		string	true	"Username"
-//	@Success	200	{object}	dto.UserResponse
+//	@Success	200		{object}	dto.UserResponse
 //	@Router		/v1/users/{name} [get]
 func GetUserByName(ctx context.Context, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
