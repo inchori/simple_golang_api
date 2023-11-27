@@ -2,12 +2,13 @@ package handler
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
 	"grpc_identity/dto"
 	"grpc_identity/middleware"
 	"grpc_identity/service"
 	"grpc_identity/utils"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func NewLoginHandler(app fiber.Router, ctx context.Context, userService service.IUserService) {

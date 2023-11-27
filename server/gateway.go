@@ -2,10 +2,10 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"grpc_identity/pb/v1beta1/auth"
 	"grpc_identity/pb/v1beta1/post"
 	"grpc_identity/pb/v1beta1/user"
-	"log"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
@@ -23,24 +23,25 @@ func GatewayServer(grpcListenAddr string) (*runtime.ServeMux, error) {
 	conn, err := grpc.DialContext(ctx, grpcListenAddr, opts...)
 	if err != nil {
 		logrus.Fatalf("failed to dial gRPC: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to dial gRPC: %v", err)
 	}
 
 	err = auth.RegisterAuthHandler(ctx, mux, conn)
 	if err != nil {
 		logrus.Fatalf("failed to register auth handler gateway: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to register auth handler gateway: %v\", err")
 	}
 
 	err = user.RegisterUserHandler(ctx, mux, conn)
 	if err != nil {
 		logrus.Fatalf("failed to register user handler gateway: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to register user handler gateway: %v", err)
 	}
 
 	err = post.RegisterPostHandler(ctx, mux, conn)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatalf("failed to register post handler gateway: %v", err)
+		return nil, fmt.Errorf("failed to register post handler gateway: %v", err)
 	}
 
 	return mux, nil

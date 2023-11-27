@@ -12,7 +12,7 @@ import (
 
 func NewPostHandler(app fiber.Router, ctx context.Context, postService service.IPostService,
 	userService service.IUserService, protected fiber.Handler) {
-	app.Post("", middleware.Protected(), CreatePost(ctx, postService, userService))
+	app.Post("", protected, CreatePost(ctx, postService, userService))
 	app.Get("/:id", GetPostByID(ctx, postService))
 	app.Get("/user/:userId", protected, GetPostByUserID(ctx, postService, userService))
 	app.Delete("/:id", protected, DeleteByID(ctx, postService, userService))

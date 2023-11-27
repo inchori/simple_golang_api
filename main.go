@@ -47,6 +47,7 @@ func main() {
 		}
 
 		methods := []string{
+			"proto.v1beta1.post.Post/CreatePost",
 			"proto.v1beta1.post.Post/UpdatePost",
 			"proto.v1beta1.post.Post/DeletePost",
 			"proto.v1beta1.user.Post/GetPostByUser",

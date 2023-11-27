@@ -2,9 +2,15 @@ package server
 
 import (
 	"context"
-	"google.golang.org/grpc"
+	"fmt"
 	"grpc_identity/pb/v1beta1/post"
+	"grpc_identity/server/interceptor"
 	"grpc_identity/service"
+	"strconv"
+
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 type PostGRPCServiceServer struct {
@@ -21,14 +27,35 @@ func RegisterPostService(postService service.IPostService, userService service.I
 }
 
 func (p *PostGRPCServiceServer) CreatePost(ctx context.Context, req *post.CreatePostRequest) (*post.CreatePostResponse, error) {
-	userByID, err := p.userService.GetUserByID(ctx, int(req.UserId))
+	jwtToken, err := grpc_auth.AuthFromMD(ctx, "Bearer")
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to get jwt token: %v", err)
+		return nil, fmt.Errorf("failed to get jwt token: %v", err)
+	}
+
+	tokenClaimsID, err := interceptor.ExtractTokenFromMetadata(jwtToken)
+	if err != nil {
+		logrus.Errorf("failed to extract token from metadata: %v", err)
+		return nil, fmt.Errorf("failed to extract token from metadata: %v", err)
+	}
+
+	tokenID, _ := strconv.Atoi(tokenClaimsID)
+	fmt.Println(tokenID)
+	userByID, err := p.userService.GetUserByID(ctx, tokenID)
+	if err != nil {
+		logrus.Errorf("failed to get user: %v", err)
+		return nil, fmt.Errorf("failed to get user: %v", err)
+	}
+
+	if userByID.ID != tokenID {
+		logrus.Errorf("unauthorized")
+		return nil, fmt.Errorf("unauthorzied")
 	}
 
 	createPost, err := p.postService.CreatePost(ctx, req.Title, req.Content, userByID)
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to create post: %v", err)
+		return nil, fmt.Errorf("failed to create post: %v", err)
 	}
 
 	postRes := &post.PostMessage{
@@ -43,7 +70,8 @@ func (p *PostGRPCServiceServer) CreatePost(ctx context.Context, req *post.Create
 func (p *PostGRPCServiceServer) GetPost(ctx context.Context, req *post.GetPostByIDRequest) (*post.GetPostByIDResponse, error) {
 	postByID, err := p.postService.GetPostByID(ctx, int(req.Id))
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to get post by ID: %v", err)
+		return nil, fmt.Errorf("failed to get post by ID: %v", err)
 	}
 
 	postRes := &post.PostMessage{
@@ -56,9 +84,34 @@ func (p *PostGRPCServiceServer) GetPost(ctx context.Context, req *post.GetPostBy
 }
 
 func (p *PostGRPCServiceServer) GetPostByUser(ctx context.Context, req *post.GetPostByUserRequest) (*post.GetPostByUserResponse, error) {
+	jwtToken, err := grpc_auth.AuthFromMD(ctx, "Bearer")
+	if err != nil {
+		logrus.Errorf("failed to get jwt token: %v", err)
+		return nil, fmt.Errorf("failed to get jwt token: %v", err)
+	}
+
+	tokenClaimsID, err := interceptor.ExtractTokenFromMetadata(jwtToken)
+	if err != nil {
+		logrus.Errorf("failed to extract token from metadata: %v", err)
+		return nil, fmt.Errorf("failed to extract token from metadata: %v", err)
+	}
+
+	tokenID, _ := strconv.Atoi(tokenClaimsID)
+	userByID, err := p.userService.GetUserByID(ctx, tokenID)
+	if err != nil {
+		logrus.Errorf("failed to get user: %v", err)
+		return nil, fmt.Errorf("failed to get user: %v", err)
+	}
+
+	if userByID.ID != tokenID {
+		logrus.Errorf("unauthorized")
+		return nil, fmt.Errorf("unauthorzied")
+	}
+
 	postsByUserID, err := p.postService.GetPostByUserID(ctx, int(req.UserId))
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to get post by user: %v", err)
+		return nil, fmt.Errorf("failed to get post by user: %v", err)
 	}
 
 	var postResponses []*post.PostMessage
@@ -75,18 +128,68 @@ func (p *PostGRPCServiceServer) GetPostByUser(ctx context.Context, req *post.Get
 }
 
 func (p *PostGRPCServiceServer) DeletePost(ctx context.Context, req *post.DeletePostRequest) (*post.DeletePostResponse, error) {
-	err := p.postService.DeleteByID(ctx, int(req.Id))
+	jwtToken, err := grpc_auth.AuthFromMD(ctx, "Bearer")
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to get jwt token: %v", err)
+		return nil, fmt.Errorf("failed to get jwt token: %v", err)
+	}
+
+	tokenClaimsID, err := interceptor.ExtractTokenFromMetadata(jwtToken)
+	if err != nil {
+		logrus.Errorf("failed to extract token from metadata: %v", err)
+		return nil, fmt.Errorf("failed to extract token from metadata: %v", err)
+	}
+
+	tokenID, _ := strconv.Atoi(tokenClaimsID)
+	userByID, err := p.userService.GetUserByID(ctx, tokenID)
+	if err != nil {
+		logrus.Errorf("failed to get user by ID: %v", err)
+		return nil, fmt.Errorf("failed to get user by ID: %v", err)
+	}
+
+	if userByID.ID != tokenID {
+		logrus.Errorf("unauthorized")
+		return nil, fmt.Errorf("unauthorzied")
+	}
+
+	err = p.postService.DeleteByID(ctx, int(req.Id))
+	if err != nil {
+		logrus.Errorf("failed to delete by ID: %v", err)
+		return nil, fmt.Errorf("failed to delete by ID: %v", err)
 	}
 
 	return &post.DeletePostResponse{}, nil
 }
 
 func (p *PostGRPCServiceServer) UpdatePost(ctx context.Context, req *post.UpdatePostRequest) (*post.UpdatePostResponse, error) {
+	jwtToken, err := grpc_auth.AuthFromMD(ctx, "Bearer")
+	if err != nil {
+		logrus.Errorf("failed to get jwt token: %v", err)
+		return nil, fmt.Errorf("failed to get jwt token: %v", err)
+	}
+
+	tokenClaimsID, err := interceptor.ExtractTokenFromMetadata(jwtToken)
+	if err != nil {
+		logrus.Errorf("failed to extract token from metadata: %v", err)
+		return nil, fmt.Errorf("failed to extract token from metadata: %v", err)
+	}
+
+	tokenID, _ := strconv.Atoi(tokenClaimsID)
+	userByID, err := p.userService.GetUserByID(ctx, tokenID)
+	if err != nil {
+		logrus.Errorf("failed to get user: %v", err)
+		return nil, fmt.Errorf("failed to get user: %v", err)
+	}
+
+	if userByID.ID != tokenID {
+		logrus.Error("unauthorized")
+		return nil, fmt.Errorf("unauthorzied")
+	}
+
 	updatePost, err := p.postService.UpdatePost(ctx, req.Content, req.Title, int(req.Id))
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to update post: %v", err)
+		return nil, fmt.Errorf("failed to update post: %v", err)
 	}
 
 	postMsg := &post.PostMessage{

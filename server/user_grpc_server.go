@@ -2,13 +2,16 @@ package server
 
 import (
 	"context"
-	"errors"
-	"github.com/golang-jwt/jwt/v5"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
-	"google.golang.org/grpc"
+	"fmt"
 	"grpc_identity/pb/v1beta1/user"
+	"grpc_identity/server/interceptor"
 	"grpc_identity/service"
+	"grpc_identity/utils"
 	"strconv"
+
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 type UserGRPCServiceServer struct {
@@ -23,9 +26,16 @@ func RegisterUserService(userService service.IUserService, svr *grpc.Server) {
 }
 
 func (u *UserGRPCServiceServer) CreateUser(ctx context.Context, req *user.CreateUserRequest) (*user.CreateUserResponse, error) {
-	createUser, err := u.userService.CreateUser(ctx, req.Name, req.Email, req.Password)
+	hashPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to hash password: %v", err)
+		return nil, fmt.Errorf("failed to hash password: %v", err)
+	}
+
+	createUser, err := u.userService.CreateUser(ctx, req.Name, req.Email, hashPassword)
+	if err != nil {
+		logrus.Errorf("failed to create user: %v", err)
+		return nil, fmt.Errorf("failed to create user: %v", err)
 	}
 
 	userResp := &user.CreateUserResponse{
@@ -40,7 +50,8 @@ func (u *UserGRPCServiceServer) CreateUser(ctx context.Context, req *user.Create
 func (u *UserGRPCServiceServer) GetUserByID(ctx context.Context, req *user.GetUserByIDRequest) (*user.GetUserByIDResponse, error) {
 	userByID, err := u.userService.GetUserByID(ctx, int(req.Id))
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to get user by ID: %v", err)
+		return nil, fmt.Errorf("failed to get user by ID: %v", err)
 	}
 
 	userMsg := &user.UserMessage{
@@ -55,7 +66,8 @@ func (u *UserGRPCServiceServer) GetUserByID(ctx context.Context, req *user.GetUs
 func (u *UserGRPCServiceServer) GetUserByName(ctx context.Context, req *user.GetUserByNameRequest) (*user.GetUserByNameResponse, error) {
 	userByName, err := u.userService.GetUserByName(ctx, req.Name)
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to get user by name: %v", err)
+		return nil, fmt.Errorf("failed to get user by name: %v", err)
 	}
 
 	userMsg := &user.UserMessage{
@@ -70,7 +82,8 @@ func (u *UserGRPCServiceServer) GetUserByName(ctx context.Context, req *user.Get
 func (u *UserGRPCServiceServer) GetUserByEmail(ctx context.Context, req *user.GetUserByEmailRequest) (*user.GetUserByEmailResponse, error) {
 	userByEmail, err := u.userService.GetUserByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to get user by email: %v", err)
+		return nil, fmt.Errorf("failed to get user by email: %v", err)
 	}
 
 	userMsg := &user.UserMessage{
@@ -85,40 +98,65 @@ func (u *UserGRPCServiceServer) GetUserByEmail(ctx context.Context, req *user.Ge
 func (u *UserGRPCServiceServer) DeleteUser(ctx context.Context, req *user.DeleteUserRequest) (*user.DeleteUserResponse, error) {
 	jwtToken, err := grpc_auth.AuthFromMD(ctx, "Bearer")
 	if err != nil {
-		return nil, err
-	}
-	if jwtToken == "" {
-		return nil, errors.New("empty token")
+		logrus.Errorf("failed to get jwt token: %v", err)
+		return nil, fmt.Errorf("failed to get jwt token: %v", err)
 	}
 
-	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil
-	})
+	tokenClaimsID, err := interceptor.ExtractTokenFromMetadata(jwtToken)
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to extract token from metadata: %v", err)
+		return nil, fmt.Errorf("failed to extract token from metadata: %v", err)
 	}
 
-	subID, err := token.Claims.GetSubject()
+	tokenID, _ := strconv.Atoi(tokenClaimsID)
+	userByID, err := u.userService.GetUserByID(ctx, tokenID)
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to get user: %v", err)
+		return nil, fmt.Errorf("failed to get user: %v", err)
 	}
 
-	if subID != strconv.Itoa(int(req.Id)) {
-		return nil, err
+	if userByID.ID != tokenID {
+		logrus.Errorf("unauthorized")
+		return nil, fmt.Errorf("unauthorzied")
 	}
 
 	err = u.userService.DeleteByID(ctx, int(req.Id))
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to delete user: %v", err)
+		return nil, fmt.Errorf("failed to delete user: %v", err)
 	}
 
 	return &user.DeleteUserResponse{}, nil
 }
 
 func (u *UserGRPCServiceServer) UpdateUser(ctx context.Context, req *user.UpdateUserRequest) (*user.UpdateUserResponse, error) {
+	jwtToken, err := grpc_auth.AuthFromMD(ctx, "Bearer")
+	if err != nil {
+		logrus.Errorf("failed to get jwt token: %v", err)
+		return nil, fmt.Errorf("failed to get jwt token: %v", err)
+	}
+
+	tokenClaimsID, err := interceptor.ExtractTokenFromMetadata(jwtToken)
+	if err != nil {
+		logrus.Errorf("failed to extract token from metadata: %v", err)
+		return nil, fmt.Errorf("failed to extract token from metadata: %v", err)
+	}
+
+	tokenID, _ := strconv.Atoi(tokenClaimsID)
+	userByID, err := u.userService.GetUserByID(ctx, tokenID)
+	if err != nil {
+		logrus.Errorf("failed to get user by ID: %v", err)
+		return nil, fmt.Errorf("failed to get user by ID: %v", err)
+	}
+
+	if userByID.ID != tokenID {
+		logrus.Errorf("unauthorized")
+		return nil, fmt.Errorf("unauthorzied")
+	}
 	updateUser, err := u.userService.UpdateUser(ctx, req.Name, req.Password, int(req.Id))
 	if err != nil {
-		return nil, err
+		logrus.Errorf("failed to update user: %v", err)
+		return nil, fmt.Errorf("failed to update user: %v", err)
 	}
 
 	userResp := &user.UpdateUserResponse{
