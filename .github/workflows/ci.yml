@@ -22,16 +22,7 @@ jobs:
       - name: Checkout code into the Go module directory
         uses: actions/checkout@v3
 
-      - name: Make .env file
-        run: |
-          touch ./.env
-          echo "${{ secrets.DOT_ENV }}" > ./.env
-
       - name: Build
-        env:
-          CGO_ENABLED: 0
-          GOOS: linux
-          GOARCH: amd64
         run: make build
 
       - name: Test
