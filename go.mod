@@ -2,8 +2,6 @@ module grpc_identity
 
 go 1.21
 
-toolchain go1.21.0
-
 require (
 	entgo.io/ent v0.12.5
 	github.com/go-sql-driver/mysql v1.7.1
