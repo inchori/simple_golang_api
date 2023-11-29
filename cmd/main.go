@@ -40,7 +40,7 @@ func main() {
 		logrus.Fatalf("failed to load config file: %v", err)
 	}
 
-	dbClient := database.ConnectDB(loadConfig)
+	dbClient := database.ConnectDB(*loadConfig)
 	ctx := context.Background()
 	if err := dbClient.Schema.Create(ctx); err != nil {
 		logrus.Fatalf("failed to migrate database schema: %v", err)

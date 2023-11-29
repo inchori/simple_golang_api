@@ -23,27 +23,31 @@ var envs = []string{
 	"DB_HOST", "DB_NAME", "DB_USER", "DB_PORT", "DB_PASSWORD", "SERVER", "HTTP_PORT", "GRPC_PORT", "GATEWAY_PORT",
 }
 
-func LoadConfigFile() (Config, error) {
+func LoadConfigFile() (*Config, error) {
 	var config Config
 
-	viper.AddConfigPath("../grpc_identity")
+	//workingDir, err := os.Getwd()
+	//if err != nil {
+	//	return nil, err
+	//}
+	viper.AddConfigPath("../")
 	viper.SetConfigFile(".env")
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
 	for _, env := range envs {
 		if err := viper.BindEnv(env); err != nil {
 			logrus.Error("failed to reading env file")
-			return config, fmt.Errorf("failed to reading env file: %v", err)
+			return nil, fmt.Errorf("failed to reading env file: %v", err)
 		}
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		return config, err
+		return nil, err
 	}
 
-	return config, nil
+	return &config, nil
 }

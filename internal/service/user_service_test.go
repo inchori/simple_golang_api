@@ -2,9 +2,9 @@ package service_test
 
 import (
 	"context"
-	"grpc_identity/internal/ent"
-	"grpc_identity/internal/mocks"
-	"grpc_identity/internal/service"
+	"github.com/inchori/grpc_identity/internal/ent"
+	"github.com/inchori/grpc_identity/internal/mocks"
+	"github.com/inchori/grpc_identity/internal/service"
 	"testing"
 
 	"github.com/stretchr/testify/mock"

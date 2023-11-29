@@ -1,6 +1,6 @@
 module github.com/inchori/grpc_identity
 
-go 1.21
+go 1.20
 
 require (
 	entgo.io/ent v0.12.5
