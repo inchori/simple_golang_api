@@ -26,10 +26,6 @@ var envs = []string{
 func LoadConfigFile() (*Config, error) {
 	var config Config
 
-	//workingDir, err := os.Getwd()
-	//if err != nil {
-	//	return nil, err
-	//}
 	viper.AddConfigPath("../")
 	viper.SetConfigFile(".env")
 
