@@ -3,10 +3,10 @@ package server
 import (
 	"context"
 	"fmt"
+	"grpc_identity/internal/service"
 	"grpc_identity/pb/v1beta1/user"
+	"grpc_identity/pkg/utils"
 	"grpc_identity/server/interceptor"
-	"grpc_identity/service"
-	"grpc_identity/utils"
 	"strconv"
 
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"

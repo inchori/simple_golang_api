@@ -3,10 +3,10 @@ package server
 import (
 	"context"
 	"fmt"
-	"grpc_identity/middleware"
+	"grpc_identity/internal/middleware"
+	"grpc_identity/internal/service"
 	"grpc_identity/pb/v1beta1/auth"
-	"grpc_identity/service"
-	"grpc_identity/utils"
+	"grpc_identity/pkg/utils"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
