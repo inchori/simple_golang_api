@@ -1,7 +1,7 @@
 ARTIFACT_DIR := artifacts
 
 build: go.sum
-	go build -o inchuld cmd/main.go
+	go build -o main cmd/main.go
 
 test:
 	mkdir -p $(ARTIFACT_DIR)

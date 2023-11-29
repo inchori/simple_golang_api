@@ -58,7 +58,7 @@ make clean build // If the codes updated, use this command
 
 make test // Check the Unit test
 
-cd build && ./main // Run Go Binary File
+./main // Run Go Binary File
 ```
 
 ## Swagger Docs
