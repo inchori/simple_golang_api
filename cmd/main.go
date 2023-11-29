@@ -2,25 +2,23 @@ package main
 
 import (
 	"context"
-	"github.com/gofiber/swagger"
-	"grpc_identity/config"
-	"grpc_identity/internal/database"
-	"grpc_identity/internal/handler"
-	"grpc_identity/internal/middleware"
-	repository2 "grpc_identity/internal/repository"
-	service2 "grpc_identity/internal/service"
-	"grpc_identity/server"
-	"grpc_identity/server/interceptor"
-	"log"
-	"net"
-	"net/http"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/inchori/grpc_identity/config"
+	_ "github.com/inchori/grpc_identity/docs"
+	"github.com/inchori/grpc_identity/internal/database"
+	"github.com/inchori/grpc_identity/internal/handler"
+	"github.com/inchori/grpc_identity/internal/middleware"
+	"github.com/inchori/grpc_identity/internal/repository"
+	"github.com/inchori/grpc_identity/internal/service"
+	"github.com/inchori/grpc_identity/server"
+	"github.com/inchori/grpc_identity/server/interceptor"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	_ "grpc_identity/docs"
+	"net"
+	"net/http"
 )
 
 // @title						Simple Blog CRUD API
@@ -48,10 +46,10 @@ func main() {
 		logrus.Fatalf("failed to migrate database schema: %v", err)
 	}
 
-	userRepository := repository2.NewUserRepository(dbClient.User)
-	userService := service2.NewUserService(userRepository)
-	postRepository := repository2.NewPostRepository(dbClient.Post)
-	postService := service2.NewPostService(postRepository)
+	userRepository := repository.NewUserRepository(dbClient.User)
+	userService := service.NewUserService(userRepository)
+	postRepository := repository.NewPostRepository(dbClient.Post)
+	postService := service.NewPostService(postRepository)
 
 	if loadConfig.Server == "grpc" {
 		lis, err := net.Listen("tcp", ":"+loadConfig.GRPCPort)
@@ -83,21 +81,21 @@ func main() {
 		reflection.Register(grpcSvr)
 
 		go func() {
-			logrus.Infof("gRPC server is running on %s port", loadConfig.GRPCPort)
-			if err := grpcSvr.Serve(lis); err != nil {
-				logrus.Fatalf("failed to serve gRPC server: %v", err)
+			if loadConfig.GatewayEnabled == "true" {
+				newMux, err := server.GatewayServer(lis.Addr().String())
+				if err != nil {
+					logrus.Fatalf("failed to serve configure gateway server: %v", err)
+				}
+				logrus.Infof("gRPC server with gateway is running on %s port", loadConfig.GatewayPort)
+				if err := http.ListenAndServe(":"+loadConfig.GatewayPort, newMux); err != nil {
+					logrus.Fatalf("failed to listen gateway server: %v", err)
+				}
 			}
 		}()
 
-		if loadConfig.GatewayEnabled == "true" {
-			newMux, err := server.GatewayServer(lis.Addr().String())
-			if err != nil {
-				logrus.Fatalf("failed to serve configure gateway server: %v", err)
-			}
-			logrus.Infof("gRPC server with gateway is running on %s port", loadConfig.GatewayPort)
-			if err := http.ListenAndServe(":"+loadConfig.GatewayPort, newMux); err != nil {
-				log.Fatalf("failed to listen gateway server: %v", err)
-			}
+		logrus.Infof("gRPC server is running on %s port", loadConfig.GRPCPort)
+		if err := grpcSvr.Serve(lis); err != nil {
+			logrus.Fatalf("failed to serve gRPC server: %v", err)
 		}
 
 	} else if loadConfig.Server == "http" {

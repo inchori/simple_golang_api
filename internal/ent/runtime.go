@@ -3,10 +3,11 @@
 package ent
 
 import (
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/schema"
-	"grpc_identity/internal/ent/user"
 	"time"
+
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/schema"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code

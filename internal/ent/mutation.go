@@ -6,14 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/predicate"
-	"grpc_identity/internal/ent/user"
 	"sync"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/predicate"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 const (

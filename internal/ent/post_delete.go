@@ -4,12 +4,12 @@ package ent
 
 import (
 	"context"
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/predicate"
 )
 
 // PostDelete is the builder for deleting a Post entity.

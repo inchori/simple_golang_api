@@ -2,16 +2,16 @@ package handler
 
 import (
 	"context"
-	"grpc_identity/internal/dto"
-	"grpc_identity/internal/middleware"
-	service2 "grpc_identity/internal/service"
+	"github.com/inchori/grpc_identity/internal/dto"
+	"github.com/inchori/grpc_identity/internal/middleware"
+	"github.com/inchori/grpc_identity/internal/service"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewPostHandler(app fiber.Router, ctx context.Context, postService service2.IPostService,
-	userService service2.IUserService, protected fiber.Handler) {
+func NewPostHandler(app fiber.Router, ctx context.Context, postService service.IPostService,
+	userService service.IUserService, protected fiber.Handler) {
 	app.Post("", protected, CreatePost(ctx, postService, userService))
 	app.Get("/:id", GetPostByID(ctx, postService))
 	app.Get("/user/:userId", protected, GetPostByUserID(ctx, postService, userService))
@@ -28,7 +28,7 @@ func NewPostHandler(app fiber.Router, ctx context.Context, postService service2.
 //	@Param		request	body		dto.PostCreateRequest	true	"Create a Post Request Body"
 //	@Success	200		{object}	dto.PostResponse
 //	@Router		/v1/posts [post]
-func CreatePost(ctx context.Context, postService service2.IPostService, userService service2.IUserService) fiber.Handler {
+func CreatePost(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		postCreateRequest := new(dto.PostCreateRequest)
 		if err := c.BodyParser(&postCreateRequest); err != nil {
@@ -77,7 +77,7 @@ func CreatePost(ctx context.Context, postService service2.IPostService, userServ
 //	@Param		id	path		int	true	"Post ID"
 //	@Success	200	{object}	dto.PostResponse
 //	@Router		/v1/posts/{id} [get]
-func GetPostByID(ctx context.Context, postService service2.IPostService) fiber.Handler {
+func GetPostByID(ctx context.Context, postService service.IPostService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
@@ -106,7 +106,7 @@ func GetPostByID(ctx context.Context, postService service2.IPostService) fiber.H
 //	@Success	200		{object}	dto.PostsResponse
 //	@Router		/v1/posts/users/{userId} [get]
 //	@Security	Bearer
-func GetPostByUserID(ctx context.Context, postService service2.IPostService, userService service2.IUserService) fiber.Handler {
+func GetPostByUserID(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userId, err := c.ParamsInt("userId")
 		if err != nil {
@@ -159,7 +159,7 @@ func GetPostByUserID(ctx context.Context, postService service2.IPostService, use
 //	@Success	200	{object}	string
 //	@Router		/v1/posts/{id} [delete]
 //	@Security	Bearer
-func DeleteByID(ctx context.Context, postService service2.IPostService, userService service2.IUserService) fiber.Handler {
+func DeleteByID(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
@@ -213,7 +213,7 @@ func DeleteByID(ctx context.Context, postService service2.IPostService, userServ
 //	@Router		/v1/posts/{id} [put]
 //
 //	@Security	Bearer
-func UpdatePost(ctx context.Context, postService service2.IPostService, userService service2.IUserService) fiber.Handler {
+func UpdatePost(ctx context.Context, postService service.IPostService, userService service.IUserService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {

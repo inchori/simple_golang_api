@@ -2,8 +2,8 @@ package database
 
 import (
 	"fmt"
-	"grpc_identity/config"
-	"grpc_identity/internal/ent"
+	"github.com/inchori/grpc_identity/config"
+	"github.com/inchori/grpc_identity/internal/ent"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"

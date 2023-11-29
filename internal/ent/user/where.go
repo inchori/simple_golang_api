@@ -3,11 +3,11 @@
 package user
 
 import (
-	"grpc_identity/internal/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/inchori/grpc_identity/internal/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

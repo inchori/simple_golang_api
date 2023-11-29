@@ -6,14 +6,14 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/predicate"
-	"grpc_identity/internal/ent/user"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/predicate"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // UserQuery is the builder for querying User entities.

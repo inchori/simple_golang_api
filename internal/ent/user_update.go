@@ -6,14 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/predicate"
-	"grpc_identity/internal/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/predicate"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // UserUpdate is the builder for updating User entities.

@@ -18,4 +18,49 @@ Build a Simple Blog Service with gRPC and goFiber
 ### ETC
 - [X] GitHub Actions CI
 - [X] Error Handle with logging
-- [ ] Swagger Docs
+- [X] Swagger Docs
+
+## Build From Source
+
+### Prerequisite
+
+- Go version 1.20 or greater
+- MySQL RDBMS
+
+1. Clone this Repository
+```bash
+git clone `{this repository URL}`
+
+cd grpc_identity
+```
+2. Configure .env file
+```bash
+DB_HOST=
+DB_PORT=
+DB_USER=
+DB_PASSWORD=@
+DB_NAME=blog
+
+# grpc or http
+SERVER=grpc
+HTTP_PORT=
+GRPC_PORT=
+GATEWAY_PORT=
+GATEWAY_ENABLED= # If you want to enable, grpc-gateway write `true`
+
+```
+
+3. Build and Run
+```bash
+make build
+
+make clean build // If the codes updated, use this command
+
+make test // Check the Unit test
+
+cd build && ./main // Run Go Binary File
+```
+
+## Swagger Docs
+
+If you configure the server to `http` in `.env`, you can check swagger docs in `http://localhost:{your_http_port}/swagger/index.html`.

@@ -1,6 +1,10 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	DBHost         string `mapstructure:"DB_HOST"`
@@ -22,8 +26,9 @@ var envs = []string{
 func LoadConfigFile() (Config, error) {
 	var config Config
 
-	viper.AddConfigPath("./")
+	viper.AddConfigPath("../grpc_identity")
 	viper.SetConfigFile(".env")
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		return Config{}, err
@@ -31,7 +36,8 @@ func LoadConfigFile() (Config, error) {
 
 	for _, env := range envs {
 		if err := viper.BindEnv(env); err != nil {
-			return config, err
+			logrus.Error("failed to reading env file")
+			return config, fmt.Errorf("failed to reading env file: %v", err)
 		}
 	}
 

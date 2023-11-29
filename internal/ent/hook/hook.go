@@ -5,7 +5,8 @@ package hook
 import (
 	"context"
 	"fmt"
-	"grpc_identity/internal/ent"
+
+	"github.com/inchori/grpc_identity/internal/ent"
 )
 
 // The PostFunc type is an adapter to allow the use of ordinary

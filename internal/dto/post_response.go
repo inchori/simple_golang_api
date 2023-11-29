@@ -1,6 +1,6 @@
 package dto
 
-import "grpc_identity/internal/ent"
+import "github.com/inchori/grpc_identity/internal/ent"
 
 type PostResponse struct {
 	ID      int    `json:"id"`

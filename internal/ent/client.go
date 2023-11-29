@@ -9,15 +9,14 @@ import (
 	"log"
 	"reflect"
 
-	"grpc_identity/internal/ent/migrate"
-
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/user"
+	"github.com/inchori/grpc_identity/internal/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // Client is the client that holds all ent builders.

@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
-	"grpc_identity/pb/v1beta1/auth"
-	"grpc_identity/pb/v1beta1/post"
-	"grpc_identity/pb/v1beta1/user"
+	"github.com/inchori/grpc_identity/pb/v1beta1/auth"
+	"github.com/inchori/grpc_identity/pb/v1beta1/post"
+	"github.com/inchori/grpc_identity/pb/v1beta1/user"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"

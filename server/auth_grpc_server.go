@@ -3,10 +3,10 @@ package server
 import (
 	"context"
 	"fmt"
-	"grpc_identity/internal/middleware"
-	"grpc_identity/internal/service"
-	"grpc_identity/pb/v1beta1/auth"
-	"grpc_identity/pkg/utils"
+	"github.com/inchori/grpc_identity/internal/middleware"
+	"github.com/inchori/grpc_identity/internal/service"
+	"github.com/inchori/grpc_identity/pb/v1beta1/auth"
+	"github.com/inchori/grpc_identity/pkg/utils"
 	"strconv"
 
 	"github.com/sirupsen/logrus"

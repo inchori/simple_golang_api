@@ -5,12 +5,12 @@ package ent
 import (
 	"context"
 	"fmt"
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // UserCreate is the builder for creating a User entity.

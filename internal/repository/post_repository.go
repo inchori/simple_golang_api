@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	"grpc_identity/internal/ent"
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/user"
+	"github.com/inchori/grpc_identity/internal/ent"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 type IPostRepository interface {

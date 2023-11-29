@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
-	service2 "grpc_identity/internal/service"
-	"grpc_identity/pb/v1beta1/post"
-	"grpc_identity/server/interceptor"
+	"github.com/inchori/grpc_identity/internal/service"
+	"github.com/inchori/grpc_identity/pb/v1beta1/post"
+	"github.com/inchori/grpc_identity/server/interceptor"
 	"strconv"
 
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
@@ -14,12 +14,12 @@ import (
 )
 
 type PostGRPCServiceServer struct {
-	postService service2.IPostService
-	userService service2.IUserService
+	postService service.IPostService
+	userService service.IUserService
 	post.UnimplementedPostServer
 }
 
-func RegisterPostService(postService service2.IPostService, userService service2.IUserService, svr *grpc.Server) {
+func RegisterPostService(postService service.IPostService, userService service.IUserService, svr *grpc.Server) {
 	post.RegisterPostServer(svr, &PostGRPCServiceServer{
 		postService: postService,
 		userService: userService,

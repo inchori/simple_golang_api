@@ -2,7 +2,7 @@ package service_test
 
 import (
 	"context"
-	"grpc_identity/ent"
+	"grpc_identity/internal/ent"
 	"grpc_identity/internal/mocks"
 	"grpc_identity/internal/service"
 	"testing"

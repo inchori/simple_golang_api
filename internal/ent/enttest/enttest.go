@@ -4,13 +4,13 @@ package enttest
 
 import (
 	"context"
-	"grpc_identity/internal/ent"
-	// required by schema hooks.
-	_ "grpc_identity/internal/ent/runtime"
 
-	"grpc_identity/internal/ent/migrate"
+	"github.com/inchori/grpc_identity/internal/ent"
+	// required by schema hooks.
+	_ "github.com/inchori/grpc_identity/internal/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
+	"github.com/inchori/grpc_identity/internal/ent/migrate"
 )
 
 type (

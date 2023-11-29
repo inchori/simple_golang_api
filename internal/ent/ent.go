@@ -6,14 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/user"
 	"reflect"
 	"sync"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.

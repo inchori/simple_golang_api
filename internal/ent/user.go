@@ -4,12 +4,12 @@ package ent
 
 import (
 	"fmt"
-	"grpc_identity/internal/ent/user"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // User is the model entity for the User schema.

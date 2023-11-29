@@ -4,12 +4,12 @@ package ent
 
 import (
 	"context"
-	"grpc_identity/internal/ent/predicate"
-	"grpc_identity/internal/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/inchori/grpc_identity/internal/ent/predicate"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // UserDelete is the builder for deleting a User entity.

@@ -2,10 +2,10 @@ package handler
 
 import (
 	"context"
-	"grpc_identity/internal/dto"
-	"grpc_identity/internal/middleware"
-	"grpc_identity/internal/service"
-	"grpc_identity/pkg/utils"
+	"github.com/inchori/grpc_identity/internal/dto"
+	"github.com/inchori/grpc_identity/internal/middleware"
+	"github.com/inchori/grpc_identity/internal/service"
+	"github.com/inchori/grpc_identity/pkg/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"

@@ -4,13 +4,13 @@ package ent
 
 import (
 	"fmt"
-	"grpc_identity/internal/ent/post"
-	"grpc_identity/internal/ent/user"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/inchori/grpc_identity/internal/ent/post"
+	"github.com/inchori/grpc_identity/internal/ent/user"
 )
 
 // Post is the model entity for the Post schema.

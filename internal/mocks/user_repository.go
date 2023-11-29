@@ -4,8 +4,8 @@ package mocks
 
 import (
 	context "context"
-	ent "grpc_identity/ent"
 
+	ent "github.com/inchori/grpc_identity/internal/ent"
 	mock "github.com/stretchr/testify/mock"
 )
 
