@@ -25,7 +25,7 @@ Build a Simple Blog Service with gRPC and goFiber
 ### Prerequisite
 
 - Go version 1.20 or greater
-- MySQL RDBMS
+- MySQL
 
 1. Clone this Repository
 ```bash
